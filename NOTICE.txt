@@ -1,0 +1,3 @@
+Initial code https://github.com/ArtsiomCh/CMake
+
+Author: Artsiom Chapialiou
