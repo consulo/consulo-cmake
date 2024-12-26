@@ -1,17 +1,15 @@
 package com.cmakeplugin.inspections;
 
-import com.cmakeplugin.CMakeComponent;
 import com.cmakeplugin.utils.CMakePDC;
 import com.cmakeplugin.utils.CMakePlusPDC;
-import com.intellij.codeInspection.LocalInspectionTool;
-import com.intellij.codeInspection.LocalQuickFix;
-import com.intellij.codeInspection.ProblemDescriptor;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.util.PsiTreeUtil;
+import consulo.language.editor.inspection.LocalInspectionTool;
+import consulo.language.editor.inspection.LocalQuickFix;
+import consulo.language.editor.inspection.ProblemDescriptor;
+import consulo.language.editor.inspection.ProblemsHolder;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiElementVisitor;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +24,6 @@ public class EndOfBlockCommandArgumentsInspection extends LocalInspectionTool {
       @Override
       public void visitElement(PsiElement element) {
         super.visitElement(element);
-        if (!CMakeComponent.isCMakePlusActive) return;
         if (CMakePlusPDC.END_OF_COMMAND_KEYWORD_ELEMENT_TYPES.contains(
             element.getNode().getElementType())) {
           PsiElement arguments = PsiTreeUtil.getChildOfType(element, CMakePDC.ARGUMENTS_CLASS);

@@ -1,14 +1,14 @@
 package com.cmakeplugin;
 
-import com.cmakeplugin.utils.CMakePlusPDC2;
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.folding.FoldingBuilder;
-import com.intellij.lang.folding.FoldingDescriptor;
-import com.intellij.lang.folding.NamedFoldingDescriptor;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.cmakeplugin.utils.CMakePlusPDC;
+import consulo.document.Document;
+import consulo.document.util.TextRange;
+import consulo.language.ast.ASTNode;
+import consulo.language.editor.folding.FoldingBuilder;
+import consulo.language.editor.folding.FoldingDescriptor;
+import consulo.language.editor.folding.NamedFoldingDescriptor;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,6 @@ public class CMakeFoldingBuilderForMultiLineBodies implements FoldingBuilder {
   @NotNull
   @Override
   public FoldingDescriptor[] buildFoldRegions(@NotNull ASTNode node, @NotNull Document document) {
-    if (!CMakeComponent.isCMakePlusActive) return FoldingDescriptor.EMPTY;
     return PsiTreeUtil.findChildrenOfAnyType(node.getPsi(), CMakePlusPDC.FOLDABLE_BODIES).stream()
         .filter(it -> isMultiLine(document, it))
         .map(this::createFoldingDescriptor)

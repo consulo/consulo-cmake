@@ -1,28 +1,24 @@
 package com.cmakeplugin;
 
-import com.cmakeplugin.utils.CMakeProxyToJB;
-import com.intellij.openapi.fileTypes.*;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
+import consulo.virtualFileSystem.fileType.FileTypeConsumer;
+import consulo.virtualFileSystem.fileType.FileTypeFactory;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 
+@ExtensionImpl
 public class CMakeFileTypeFactory extends FileTypeFactory {
-  @Override
-  public void createFileTypes(@NotNull FileTypeConsumer fileTypeConsumer) {
-    if (CMakeProxyToJB.isCLION) return;
-    fileTypeConsumer.consume(
-            CMakeFileType.INSTANCE,
-            new FileNameMatcherEx() {
-              @Override
-              @NotNull
-              public String getPresentableString() {
-                return "CMakeLists";
-              }
+    private final FileNameMatcherFactory myFileNameMatcherFactory;
 
-              @Override
-              public boolean acceptsCharSequence(CharSequence fileName) {
-                return fileName.toString().matches("(CMakeLists[.]txt)|(.*[.]cmake)");
-              }
+    @Inject
+    public CMakeFileTypeFactory(FileNameMatcherFactory fileNameMatcherFactory) {
+        myFileNameMatcherFactory = fileNameMatcherFactory;
+    }
 
-            }
-    );
-  }
+    @Override
+    public void createFileTypes(@NotNull FileTypeConsumer fileTypeConsumer) {
+        fileTypeConsumer.consume(CMakeFileType.INSTANCE, myFileNameMatcherFactory.createExactFileNameMatcher("CMakeLists.txt"));
+        fileTypeConsumer.consume(CMakeFileType.INSTANCE, myFileNameMatcherFactory.createExactFileNameMatcher("CMakeLists.cmake"));
+    }
 }

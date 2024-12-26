@@ -3,11 +3,11 @@ package com.cmakeplugin.psi;
 import com.cmakeplugin.CMakeLanguage;
 import com.cmakeplugin.psi.impl.CMakePsiImplUtil;
 import com.cmakeplugin.utils.CMakeIFWHILEcheck;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.util.PsiTreeUtil;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiFileFactory;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;

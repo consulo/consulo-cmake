@@ -1,29 +1,25 @@
 package com.cmakeplugin;
 
-import com.cmakeplugin.utils.CMakePlusPDC2;
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.folding.FoldingBuilder;
-import com.intellij.lang.folding.FoldingDescriptor;
-import com.intellij.lang.folding.NamedFoldingDescriptor;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiComment;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.cmakeplugin.utils.CMakePlusPDC;
+import consulo.document.Document;
+import consulo.document.util.TextRange;
+import consulo.language.ast.ASTNode;
+import consulo.language.editor.folding.FoldingBuilder;
+import consulo.language.editor.folding.FoldingDescriptor;
+import consulo.language.editor.folding.NamedFoldingDescriptor;
+import consulo.language.psi.PsiComment;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 public class CMakeFoldingBuilderForSubsequentSingleLineComments implements FoldingBuilder {
 
   @NotNull
   @Override
   public FoldingDescriptor[] buildFoldRegions(@NotNull ASTNode node, @NotNull Document document) {
-    if (!CMakeComponent.isCMakePlusActive) return FoldingDescriptor.EMPTY;
     List<FoldingDescriptor> result = new ArrayList<>();
     final Collection<PsiComment> comments =
         PsiTreeUtil.findChildrenOfType(node.getPsi(), PsiComment.class);

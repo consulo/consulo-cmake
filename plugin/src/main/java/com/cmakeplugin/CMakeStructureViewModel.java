@@ -1,16 +1,13 @@
 package com.cmakeplugin;
 
 import com.cmakeplugin.utils.CMakePDC;
-import com.cmakeplugin.utils.CMakePlusPDC2;
-import com.intellij.ide.structureView.*;
-import com.intellij.ide.util.treeView.smartTree.ActionPresentation;
-import com.intellij.ide.util.treeView.smartTree.ActionPresentationData;
-import com.intellij.ide.util.treeView.smartTree.Filter;
-import com.intellij.ide.util.treeView.smartTree.Sorter;
-import com.intellij.ide.util.treeView.smartTree.TreeElement;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.psi.PsiFile;
-import com.intellij.util.PlatformIcons;
+import com.cmakeplugin.utils.CMakePlusPDC;
+import consulo.codeEditor.Editor;
+import consulo.fileEditor.structureView.StructureViewModel;
+import consulo.fileEditor.structureView.StructureViewTreeElement;
+import consulo.fileEditor.structureView.tree.*;
+import consulo.language.editor.structureView.StructureViewModelBase;
+import consulo.language.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

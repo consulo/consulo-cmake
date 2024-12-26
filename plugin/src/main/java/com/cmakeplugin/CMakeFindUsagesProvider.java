@@ -1,9 +1,9 @@
 package com.cmakeplugin;
 
 import com.cmakeplugin.psi.CMakeUnquotedArgumentMaybeVariableContainer;
-import com.intellij.lang.findUsages.EmptyFindUsagesProvider;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
+import consulo.language.findUsage.EmptyFindUsagesProvider;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiNamedElement;
 import org.jetbrains.annotations.NotNull;
 
 public class CMakeFindUsagesProvider extends EmptyFindUsagesProvider {
@@ -18,26 +18,6 @@ public class CMakeFindUsagesProvider extends EmptyFindUsagesProvider {
   public String getType(@NotNull PsiElement psiElement) {
     String result = "";
     if (psiElement instanceof CMakeUnquotedArgumentMaybeVariableContainer) result = "variable";
-/*
-    else
-      // psiElement and WrappedCmakeElement have different class-loaders.
-      try {
-        Class<?> clazzWrappedCmakeElement =
-            psiElement
-                .getClass()
-                .getClassLoader()
-                .loadClass("com.cmakeplugin.utils.wrappers.WrappedCmakeElement");
-        if (clazzWrappedCmakeElement.isInstance(psiElement)) {
-          Method m = clazzWrappedCmakeElement.getMethod("getType");
-          result = (String) m.invoke(psiElement);
-        }
-      } catch (ClassNotFoundException
-          | NoSuchMethodException
-          | IllegalAccessException
-          | InvocationTargetException e) {
-        System.out.println(e.getMessage());
-      }
-*/
     return result;
   }
 }

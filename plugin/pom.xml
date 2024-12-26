@@ -45,6 +45,7 @@
                             <goal>generate-icon</goal>
                             <goal>generate-lexers</goal>
                             <goal>generate-localize</goal>
+                            <goal>generate-parsers</goal>
                         </goals>
                     </execution>
                     <execution>

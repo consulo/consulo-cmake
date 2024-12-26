@@ -1,9 +1,9 @@
 package com.cmakeplugin;
 
-import com.intellij.openapi.util.IconLoader;
+import consulo.cmake.icon.CMakeIconGroup;
+import consulo.ui.image.Image;
 
-import javax.swing.*;
-
+@Deprecated
 public class CMakeIcons {
-  public static final Icon FILE = IconLoader.getIcon("/icons/cmake.png");
+  public static final Image FILE = CMakeIconGroup.cmake();
 }

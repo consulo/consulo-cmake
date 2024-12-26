@@ -2,19 +2,16 @@ package com.cmakeplugin.annotator;
 
 import com.cmakeplugin.CMakeKeywords;
 import com.cmakeplugin.CMakeSyntaxHighlighter;
-
-import com.cmakeplugin.utils.CMakePSITreeSearch;
-
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.lang.annotation.Annotation;
-import com.intellij.lang.annotation.AnnotationHolder;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.NotNull;
-
 import com.cmakeplugin.utils.CMakeIFWHILEcheck;
+import com.cmakeplugin.utils.CMakePSITreeSearch;
 import com.cmakeplugin.utils.CMakeVarStringUtil;
+import consulo.colorScheme.TextAttributesKey;
+import consulo.document.util.TextRange;
+import consulo.language.editor.annotation.Annotation;
+import consulo.language.editor.annotation.AnnotationHolder;
+import consulo.language.editor.inspection.ProblemHighlightType;
+import consulo.language.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 
 // import static CMakeKeywords.*;
 

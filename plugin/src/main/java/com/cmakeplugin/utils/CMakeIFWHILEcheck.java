@@ -1,10 +1,10 @@
 package com.cmakeplugin.utils;
 
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import java.util.Collections;
+import consulo.document.util.TextRange;
+import consulo.language.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 
 public class CMakeIFWHILEcheck {

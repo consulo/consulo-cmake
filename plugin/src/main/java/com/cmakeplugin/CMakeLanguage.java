@@ -1,6 +1,6 @@
 package com.cmakeplugin;
 
-import com.intellij.lang.Language;
+import consulo.language.Language;
 
 public class CMakeLanguage extends Language {
   public static final CMakeLanguage INSTANCE = new CMakeLanguage();

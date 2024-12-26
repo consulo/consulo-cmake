@@ -1,4 +1,5 @@
 package com.cmakeplugin;
+
 import com.intellij.lexer.*;
 import com.intellij.psi.tree.IElementType;
 import static com.cmakeplugin.psi.CMakeTypes.*;

@@ -1,12 +1,11 @@
 package com.cmakeplugin.psi;
 
-import com.intellij.extapi.psi.PsiFileBase;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.psi.FileViewProvider;
-import com.cmakeplugin.*;
+import com.cmakeplugin.CMakeFileType;
+import com.cmakeplugin.CMakeLanguage;
+import consulo.language.file.FileViewProvider;
+import consulo.language.impl.psi.PsiFileBase;
+import consulo.virtualFileSystem.fileType.FileType;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
 
 public class CMakeFile extends PsiFileBase {
   public CMakeFile(@NotNull FileViewProvider viewProvider) {
@@ -22,10 +21,5 @@ public class CMakeFile extends PsiFileBase {
   @Override
   public String toString() {
     return "CMake File";
-  }
-
-  @Override
-  public Icon getIcon(int flags) {
-    return super.getIcon(flags);
   }
 }

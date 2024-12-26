@@ -1,22 +1,20 @@
 package com.cmakeplugin;
 
-import com.cmakeplugin.utils.CMakeIFWHILEcheck;
-import com.cmakeplugin.utils.CMakePDC;
-import com.cmakeplugin.utils.CMakePSITreeSearch;
-import com.cmakeplugin.utils.CMakeVarStringUtil;
-import com.intellij.ide.projectView.PresentationData;
-import com.intellij.ide.structureView.StructureViewTreeElement;
-import com.intellij.ide.util.treeView.smartTree.SortableTreeElement;
-import com.intellij.ide.util.treeView.smartTree.TreeElement;
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.psi.NavigatablePsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.PlatformIcons;
-import java.util.stream.Stream;
-import javax.swing.Icon;
+import com.cmakeplugin.utils.*;
+import consulo.colorScheme.TextAttributesKey;
+import consulo.fileEditor.structureView.StructureViewTreeElement;
+import consulo.fileEditor.structureView.tree.SortableTreeElement;
+import consulo.fileEditor.structureView.tree.TreeElement;
+import consulo.language.psi.NavigatablePsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.navigation.ItemPresentation;
+import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.ui.ex.tree.PresentationData;
+import consulo.ui.image.Image;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.Stream;
 
 public abstract class CMakeStructureViewElement
     implements StructureViewTreeElement, SortableTreeElement {
@@ -24,7 +22,7 @@ public abstract class CMakeStructureViewElement
   ItemPresentation presentation;
   String presentableText;
   String notesText = null;
-  Icon icon = null;
+  Image icon = null;
   TextAttributesKey attributesKey = null;
 
   CMakeStructureViewElement(NavigatablePsiElement element) {
@@ -172,7 +170,7 @@ class VarDefElement extends CMakeStructureViewElement {
     if (presentation != null
         && (notesText = presentation.getPresentableText()) != null
         && notesText.length() > 20) notesText = notesText.substring(20);
-    icon = PlatformIcons.VARIABLE_ICON;
+    icon = PlatformIconGroup.nodesVariable();
     attributesKey =
         CMakeVarStringUtil.isPredefinedCMakeVar(element.getText())
             ? CMakeSyntaxHighlighter.CMAKE_VAR_DEF

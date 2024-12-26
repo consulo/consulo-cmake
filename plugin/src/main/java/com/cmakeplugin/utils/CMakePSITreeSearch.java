@@ -1,34 +1,26 @@
 package com.cmakeplugin.utils;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.NavigatablePsiElement;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
-import com.intellij.psi.search.FileTypeIndex;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.PsiElementProcessor;
-import com.intellij.psi.util.PsiElementFilter;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.util.PsiUtilCore;
-import java.util.HashSet;
-import java.util.Map;
+import consulo.language.psi.*;
+import consulo.language.psi.resolve.PsiElementProcessor;
+import consulo.language.psi.scope.GlobalSearchScope;
+import consulo.language.psi.search.FileTypeIndex;
+import consulo.language.psi.util.PsiElementFilter;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import org.jetbrains.annotations.Nullable;
-
-import static com.cmakeplugin.utils.CMakeIFWHILEcheck.*;
-import static com.cmakeplugin.utils.CMakePDC.*;
+import static com.cmakeplugin.utils.CMakeIFWHILEcheck.couldBeVarDef;
+import static com.cmakeplugin.utils.CMakeIFWHILEcheck.getInnerVars;
+import static com.cmakeplugin.utils.CMakePDC.ARGUMENTS_CLASS;
+import static com.cmakeplugin.utils.CMakePDC.FUN_MACRO_ARGUMENT_CLASSES;
 
 public class CMakePSITreeSearch {
 

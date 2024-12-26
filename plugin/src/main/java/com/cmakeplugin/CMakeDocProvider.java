@@ -3,6 +3,7 @@ package com.cmakeplugin;
 import com.cmakeplugin.utils.CMakeIFWHILEcheck;
 import com.cmakeplugin.utils.CMakePDC;
 import com.cmakeplugin.utils.CMakePSITreeSearch;
+import com.cmakeplugin.utils.CMakePlusPDC;
 import com.intellij.ide.DataManager;
 import com.intellij.lang.documentation.DocumentationProviderEx;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -37,9 +38,6 @@ public class CMakeDocProvider extends DocumentationProviderEx {
   @Override
   @Nullable
   public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
-
-    if (!CMakeComponent.isCMakePlusActive) return null;
-
     if (CMakePDC.COMMAND_NAME_CLASS.isInstance(element)
         || (element.getNode() != null
             && CMakePlusPDC.COMMAND_KEYWORD_ELEMENT_TYPES.contains(

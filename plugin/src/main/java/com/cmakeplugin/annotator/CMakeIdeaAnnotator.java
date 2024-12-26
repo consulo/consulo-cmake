@@ -1,12 +1,11 @@
 package com.cmakeplugin.annotator;
 
-import com.cmakeplugin.utils.CMakePDC;
-import com.intellij.lang.annotation.AnnotationHolder;
-import com.intellij.lang.annotation.Annotator;
-import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.NotNull;
-
 import com.cmakeplugin.psi.*;
+import com.cmakeplugin.utils.CMakePDC;
+import consulo.language.editor.annotation.AnnotationHolder;
+import consulo.language.editor.annotation.Annotator;
+import consulo.language.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 
 import static com.cmakeplugin.annotator.CMakeAnnotatorUtils.*;
 

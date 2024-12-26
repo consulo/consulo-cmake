@@ -1,6 +1,6 @@
 package com.cmakeplugin;
 
-import com.intellij.lang.Commenter;
+import consulo.language.Commenter;
 import org.jetbrains.annotations.Nullable;
 
 public class CMakeCommenter implements Commenter {

@@ -1,22 +1,22 @@
 package com.cmakeplugin;
 
-import com.cmakeplugin.psi.CMakeFile;
-import com.cmakeplugin.CMakeLanguage;
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.Language;
-import com.intellij.lang.ParserDefinition;
-import com.intellij.lang.PsiParser;
-import com.intellij.lexer.Lexer;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.FileViewProvider;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.TokenType;
-import com.intellij.psi.tree.IFileElementType;
-import com.intellij.psi.tree.TokenSet;
-import org.jetbrains.annotations.NotNull;
-import com.cmakeplugin.psi.CMakeTypes;
 import com.cmakeplugin.parsing.CMakeParser;
+import com.cmakeplugin.psi.CMakeFile;
+import com.cmakeplugin.psi.CMakeTypes;
+import consulo.language.Language;
+import consulo.language.ast.ASTNode;
+import consulo.language.ast.IFileElementType;
+import consulo.language.ast.TokenSet;
+import consulo.language.ast.TokenType;
+import consulo.language.file.FileViewProvider;
+import consulo.language.lexer.Lexer;
+import consulo.language.parser.ParserDefinition;
+import consulo.language.parser.PsiParser;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.version.LanguageVersion;
+import consulo.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 /** Created by alex on 12/21/14. */
 public class CMakeParserDefinition implements ParserDefinition {
@@ -24,16 +24,16 @@ public class CMakeParserDefinition implements ParserDefinition {
   private static TokenSet COMMENTS;
   private static TokenSet STRINGS;
   private static IFileElementType FILE =
-      new IFileElementType(Language.<CMakeLanguage>findInstance(CMakeLanguage.class));
+      new IFileElementType(CMakeLanguage.INSTANCE);
 
   @NotNull
   @Override
-  public Lexer createLexer(Project project) {
+  public Lexer createLexer(LanguageVersion version) {
     return new CMakeLexerAdapter();
   }
 
   @Override
-  public PsiParser createParser(Project project) {
+  public PsiParser createParser(LanguageVersion version) {
     return new CMakeParser();
   }
 
@@ -44,14 +44,14 @@ public class CMakeParserDefinition implements ParserDefinition {
 
   @NotNull
   @Override
-  public TokenSet getWhitespaceTokens() {
+  public TokenSet getWhitespaceTokens(LanguageVersion version) {
     if (WHITE_SPACES == null) WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
     return WHITE_SPACES;
   }
 
   @NotNull
   @Override
-  public TokenSet getCommentTokens() {
+  public TokenSet getCommentTokens(LanguageVersion version) {
     if (COMMENTS == null)
       COMMENTS = TokenSet.create(CMakeTypes.LINE_COMMENT, CMakeTypes.BRACKET_COMMENT);
     return COMMENTS;
@@ -59,7 +59,7 @@ public class CMakeParserDefinition implements ParserDefinition {
 
   @NotNull
   @Override
-  public TokenSet getStringLiteralElements() {
+  public TokenSet getStringLiteralElements(LanguageVersion version) {
     if (STRINGS == null) STRINGS = TokenSet.create(CMakeTypes.QUOTED_ARGUMENT);
     return STRINGS;
   }

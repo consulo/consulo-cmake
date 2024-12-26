@@ -1,14 +1,13 @@
 package com.cmakeplugin.inspections;
 
-import com.cmakeplugin.CMakeComponent;
 import com.cmakeplugin.utils.CMakePlusPDC;
-import com.intellij.codeInspection.LocalInspectionTool;
-import com.intellij.codeInspection.LocalQuickFix;
-import com.intellij.codeInspection.ProblemDescriptor;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
+import consulo.language.editor.inspection.LocalInspectionTool;
+import consulo.language.editor.inspection.LocalQuickFix;
+import consulo.language.editor.inspection.ProblemDescriptor;
+import consulo.language.editor.inspection.ProblemsHolder;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiElementVisitor;
+import consulo.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +22,6 @@ public class BuiltinCommandLowercaseInspection extends LocalInspectionTool {
       @Override
       public void visitElement(PsiElement element) {
         super.visitElement(element);
-        if (!CMakeComponent.isCMakePlusActive) return;
         if (InspectionUtils.isBuiltinCommand(element)) {
           String commandName = element.getText();
           if (!commandName.toLowerCase().equals(commandName))

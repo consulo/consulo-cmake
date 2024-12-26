@@ -1,14 +1,17 @@
 package com.cmakeplugin;
 
-import com.cmakeplugin.utils.CMakeProxyToJB;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.fileTypes.SyntaxHighlighter;
-import com.intellij.openapi.options.colors.*;
-import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.*;
+import consulo.colorScheme.TextAttributesKey;
+import consulo.colorScheme.setting.AttributesDescriptor;
+import consulo.colorScheme.setting.ColorDescriptor;
+import consulo.language.editor.colorScheme.setting.ColorSettingsPage;
+import consulo.language.editor.highlight.SyntaxHighlighter;
+import consulo.util.collection.ContainerUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class CMakeColorSettingsPage implements ColorSettingsPage {
@@ -42,12 +45,6 @@ public class CMakeColorSettingsPage implements ColorSettingsPage {
         new AttributesDescriptor("Function name", CMakeSyntaxHighlighter.FUNCTION),
         new AttributesDescriptor("Macros name", CMakeSyntaxHighlighter.MACROS)
       };
-
-  @Nullable
-  @Override
-  public Icon getIcon() {
-    return CMakeIcons.FILE;
-  }
 
   @NotNull
   @Override
@@ -114,10 +111,8 @@ public class CMakeColorSettingsPage implements ColorSettingsPage {
   @NotNull
   @Override
   public AttributesDescriptor[] getAttributeDescriptors() {
-    return CMakeProxyToJB.isCLION
-        ? ANNOTATOR_DESCRIPTORS
-        : Stream.concat(Arrays.stream(LEXER_DESCRIPTORS), Arrays.stream(ANNOTATOR_DESCRIPTORS))
-            .toArray(AttributesDescriptor[]::new); // LEXER_DESCRIPTORS + ANNOTATOR_DESCRIPTORS
+    return Stream.concat(Arrays.stream(LEXER_DESCRIPTORS), Arrays.stream(ANNOTATOR_DESCRIPTORS))
+        .toArray(AttributesDescriptor[]::new); // LEXER_DESCRIPTORS + ANNOTATOR_DESCRIPTORS
   }
 
   @NotNull
@@ -129,6 +124,6 @@ public class CMakeColorSettingsPage implements ColorSettingsPage {
   @NotNull
   @Override
   public String getDisplayName() {
-    return CMakeProxyToJB.isCLION ? "CMake additional syntax" : "CMake";
+    return "CMake";
   }
 }

@@ -2,9 +2,12 @@ package com.cmakeplugin.inspections;
 
 import com.cmakeplugin.CMakeKeywords;
 import com.cmakeplugin.utils.CMakePDC;
-import com.intellij.psi.PsiElement;
+import consulo.language.psi.PsiElement;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InspectionUtils {

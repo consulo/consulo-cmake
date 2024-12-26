@@ -1,7 +1,7 @@
 {
   parserClass="com.cmakeplugin.parsing.CMakeParser"
 
-  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+  extends="consulo.language.impl.psi.ASTWrapperPsiElement"
 
   psiClassPrefix="CMake"
   psiImplClassSuffix="Impl"
@@ -12,8 +12,9 @@
   elementTypeHolderClass="com.cmakeplugin.psi.CMakeTypes"
   elementTypeClass="com.cmakeplugin.psi.CMakeElementType"
   tokenTypeClass="com.cmakeplugin.psi.CMakeTokenType"
+  version = "3"
 
-  implements("unquoted_argument_maybe_variable_container")="com.intellij.psi.PsiNameIdentifierOwner"
+  implements("unquoted_argument_maybe_variable_container")="consulo.language.psi.PsiNameIdentifierOwner"
 //  methods(".*_container")=[getReferences]
 
   tokens = [

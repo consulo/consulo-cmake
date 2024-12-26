@@ -1,15 +1,15 @@
 package com.cmakeplugin.utils;
 
 import com.cmakeplugin.CMakeKeywords;
-import com.intellij.openapi.util.TextRange;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import consulo.document.util.TextRange;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

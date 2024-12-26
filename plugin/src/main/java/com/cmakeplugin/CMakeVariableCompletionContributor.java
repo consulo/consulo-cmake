@@ -1,26 +1,27 @@
 package com.cmakeplugin;
 
-import com.cmakeplugin.utils.*;
-import com.intellij.codeInsight.completion.CompletionContributor;
-import com.intellij.codeInsight.completion.CompletionParameters;
-import com.intellij.codeInsight.completion.CompletionProvider;
-import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.completion.CompletionType;
-import com.intellij.codeInsight.completion.InsertHandler;
-import com.intellij.codeInsight.completion.InsertionContext;
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.patterns.PlatformPatterns;
-import com.intellij.psi.PsiElement;
-import com.intellij.util.ProcessingContext;
-import java.util.stream.Collectors;
+import com.cmakeplugin.utils.CMakePSITreeSearch;
+import com.cmakeplugin.utils.CMakePlusPDC;
+import com.cmakeplugin.utils.SemanticChecks;
+import consulo.language.editor.completion.CompletionContributor;
+import consulo.language.editor.completion.CompletionParameters;
+import consulo.language.editor.completion.CompletionResultSet;
+import consulo.language.editor.completion.CompletionType;
+import consulo.language.editor.completion.lookup.InsertHandler;
+import consulo.language.editor.completion.lookup.InsertionContext;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.language.pattern.PlatformPatterns;
+import consulo.language.psi.PsiElement;
+import consulo.language.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.Collectors;
 
 public class CMakeVariableCompletionContributor extends CompletionContributor {
 
   /** See {@link com.jetbrains.cmake.completion.CMakeCompletionContributor} */
   public CMakeVariableCompletionContributor() {
-    if (!CMakeComponent.isCMakePlusActive) return;
     extend(
         CompletionType.BASIC,
         PlatformPatterns.psiElement()
@@ -106,7 +107,7 @@ public class CMakeVariableCompletionContributor extends CompletionContributor {
                 .map(it -> it.withInsertHandler(getVarRefInsertHandler()))
                 .collect(Collectors.toList()));
 
-        if (!CMakeProxyToJB.isCLION)
+        if (!false)
           resultSet.addAllElements(
               CMakeKeywords.getAllVariables().stream()
                   .map(LookupElementBuilder::create)

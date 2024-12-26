@@ -159,15 +159,4 @@
 
   </extensions>
 
-  <application-components>
-    <!-- Add your application components here -->
-    <component>
-      <implementation-class>com.cmakeplugin.CMakePlusComponent</implementation-class>
-    </component>
-  </application-components>
-
-  <actions>
-    <!-- Add your actions here -->
-  </actions>
-
 </idea-plugin>

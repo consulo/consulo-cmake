@@ -1,27 +1,27 @@
 package com.cmakeplugin.psi.impl;
 
-import com.cmakeplugin.CMakeComponent;
-import com.cmakeplugin.psi.*;
-
+import com.cmakeplugin.psi.CMakePsiElementFactory;
+import com.cmakeplugin.psi.CMakeQuotedArgumentContainer;
+import com.cmakeplugin.psi.CMakeUnquotedArgumentContainer;
+import com.cmakeplugin.psi.CMakeUnquotedArgumentMaybeVariableContainer;
 import com.cmakeplugin.utils.CMakePSITreeSearch;
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.*;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.*;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.application.util.CachedValueProvider;
+import consulo.application.util.CachedValuesManager;
+import consulo.application.util.function.Processor;
+import consulo.document.Document;
+import consulo.document.util.TextRange;
+import consulo.language.psi.*;
+import consulo.language.psi.util.LanguageCachedValueUtil;
+import consulo.language.util.IncorrectOperationException;
+import consulo.navigation.ItemPresentation;
+import consulo.util.collection.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.List;
 
-import static com.cmakeplugin.utils.CMakeIFWHILEcheck.*;
-import static com.cmakeplugin.utils.CMakePDC.*;
+import static com.cmakeplugin.utils.CMakeIFWHILEcheck.getInnerVars;
 
 public class CMakePsiImplUtil {
 
@@ -38,7 +38,7 @@ public class CMakePsiImplUtil {
 
   @Nullable
   public static PsiElement getNameIdentifier(CMakeUnquotedArgumentMaybeVariableContainer o) {
-    return (CMakeComponent.isCMakePlusActive && CMakePSITreeSearch.existReferenceTo(o))
+    return (CMakePSITreeSearch.existReferenceTo(o))
         ? o.getUnquotedArgumentMaybeVarDef()
         : null;
   }
@@ -68,11 +68,6 @@ public class CMakePsiImplUtil {
       @Override
       public String getLocationString() {
         return null;
-      }
-
-      @Override
-      public Icon getIcon(boolean open) {
-        return null;//CMakeIcons.FILE;
       }
     };
   }
@@ -168,7 +163,6 @@ public class CMakePsiImplUtil {
 
   @NotNull
   public static PsiReference[] getReferences(PsiElement o) {
-    if (!CMakeComponent.isCMakePlusActive) return PsiReference.EMPTY_ARRAY;
     List<TextRange> innerVars = getInnerVars(o);
     if (innerVars.isEmpty()) return PsiReference.EMPTY_ARRAY;
     PsiReference[] result = new PsiReference[innerVars.size()];
@@ -181,7 +175,7 @@ public class CMakePsiImplUtil {
 
   private static boolean processUnquotedArgumentVariants(PsiElement context, Processor<CMakeUnquotedArgumentContainer> processor) {
     final PsiFile containingFile = context.getContainingFile();
-    List<CMakeUnquotedArgumentContainer> UnquotedArguments = CachedValuesManager.getCachedValue(
+    List<CMakeUnquotedArgumentContainer> UnquotedArguments = LanguageCachedValueUtil.getCachedValue(
             containingFile,
             () -> CachedValueProvider.Result.create(computeElementsOfClass(containingFile, CMakeUnquotedArgumentContainer.class), containingFile));
     return ContainerUtil.process(UnquotedArguments, processor);
