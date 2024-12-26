@@ -1,15 +1,19 @@
-<idea-plugin>
-  <id>artsiomch.cmake</id>
-  <name>CMake simple highlighter</name>
-  <version>GRADLE.BUILD</version>
-  <vendor email="achapialiou@gmail.com" url="http://github.com/ArtsiomCh/CMake">Artsiom Chapialiou</vendor>
+<consulo-plugin url="https://github.com/consulo/consulo-cmake">
+    <id>consulo.cmake</id>
+    <name>CMake</name>
 
-  <description><![CDATA[
+    <vendor>consulo.io</vendor>
+
+    <tags>
+        <tag>project.import</tag>
+        <tag>build</tag>
+    </tags>
+
+    <description><![CDATA[
      Plugin for CMake syntax highlight support.<br>
-     - It provides(extends) syntax highlight for <b>IntelliJ IDEA</b>, <b>Android Studio</b>, <b>CLion</b>, etc. <br>
-     - Highlighting styles are customisable at Settings -> Editor -> Color Scheme -> CMake [additional syntax]. <br><br>
+     - It provides(extends) syntax highlight for Consulo <br>
+     - Highlighting styles are customisable at Settings -> Editor -> Color Scheme -> CMake. <br><br>
 
-     Please consider <b><a href="https://plugins.jetbrains.com/plugin/12869-cmake-plus">CMake Plus</a></b> plugin for more functionality:<br>
      - Variables navigation (Go to definition / Find usages) and renaming(*see Notes). <br>
      - User variables definition/reference completion added (no scopes, very little semantic checks yet). <br>
      - Folding regions for functions, macros, if/for/while blocks and: <br>
@@ -28,100 +32,5 @@
           &emsp; * Builtin commands should be used in lowercase; <br>
           &emsp; * End-of-block commands (else, endif, etc.) should not take arguments. <br>
       <br>
-
-
 ]]></description>
-
-  <change-notes><![CDATA[
-      203.0.2 - fix: <a href="https://github.com/ArtsiomCh/CMake/issues/21">Preventing CLion 2020.3 from starting</a> <br>
-      203.0.1 - Compatibility with 2020.3 <br>
-      202.0.1 - Compatibility with 2020.2 <br>
-      201.1.2 - fix: long bracket comment markup could break lexer. <br>
-      201.1.1 - Some bug fixes and optimisations. <br>
-      201.0.1 - Experimental support of IntelliJ IDEA 2020.1. <br>
-      193.3.2 - bug fix: added(improved) case-insensitivity for commands, modules and boolean constants. <br>
-      193.3.1 - Update to Cmake 3.16.2 for predefined commands, modules, policies, properties, variables. <br>
-      193.2.1 - enhancement: Highlighting of not defined VarRefs moved to inspections, i.e. could be disabled if too many annoying false-positive cases (see screencast at plugin's homepage). <br>
-       &emsp; - fix bug: ARGV variable recognition. <br>
-      193.1.1 - Update to the latest list of predefined CMake commands, properties, and variables. List of CMake modules and policies added. Modules highlighting. <br>
-      192.5.1 - Some bug fixes and optimisations. <br>
-      192.4.2 - Significant speedup in parsing CMake files by heavily caching (probably a bit too right on Shipilev's curve ;). <br>
-          &emsp; * Fix the bug with wrong variable references recognition inside if/while condition at CLion. <br>
-      192.4.1 - Function/Macros name in definition/call highlighting + enable CLion Lexer for colors setting. <br>
-          &emsp; * Do not treat property/operator/bool value as possible Variable name + caching optimisation. <br>
-          &emsp; * Enable CLion Lexer for colors setting. <br>
-      192.1.1 - Compatibility with IntelliJ 2019.2 and CMake Plus plugin added. <br>
-          &emsp; * Variables navigation/renaming moved to <b><a href="https://plugins.jetbrains.com/plugin/12869-cmake-plus">CMake Plus</a></b> plugin. <br>
-          &emsp; * Some CPU and Mem usage optimisations. <br>
-      191.2 - Fix annotating Unquoted args as Var inside if/while.  <br>
-      191.1 - Navigation for variable's declarations/references at CLion (2018.2 - 2019.1) and AS (3.3 - 3.6). <br>
-          &emsp; * Bug fixes, some CPU and Mem usage optimisations. <br>
-      0.2.4 - Finally :) tested fix for CLion 2018.2 EAP compatibility issue. <br>
-      0.2.3 - Fixed (but not tested) upcoming CLion 2018.2 EAP compatibility issue: <a href="https://youtrack.jetbrains.com/issue/CPP-12728">CPP-12728</a>.  <br>
-      0.2.2 - Fixed compatibility for upcoming Android Studio 3.2 (with restricted functionality as for CLion). As a side effect the Plugin become open for all IntelliJ Platform's IDEs.<br>
-      0.2.1 - Fixed Android Studio compatibility issue. <br>
-      0.2.0 - New lexer-parser-annotator stack used: <br>
-          &emsp; * Navigation and renaming for variable's declarations/references(*see Notes: only for IntelliJ IDEA and Android Studio( till 3.2) yet).<br>
-          &emsp; * Additional highlighting: variable's declarations and properties/operators. <br>
-          &emsp; * Colors setting also available in CLion. <br>
-      0.1.0 - CLion support added. <br>
-      0.0.3 - BraceMatcher added. <br>
-      0.0.2 - Fix bug of not evaluating escaped escape symbol `\\` inside quoted argument. <br>
-      0.0.1 - In this version syntax highlighting is provided. <br>
-    ]]>
-  </change-notes>
-
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-<!--  <idea-version since-build="192.0" until-build="194.0"/>-->
-
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends optional="true" config-file="clion.xml">com.intellij.modules.cidr.lang</depends>
-  <depends optional="true" config-file="idea.xml">com.intellij.modules.java</depends>
-  <depends>com.intellij.modules.clion</depends>
-  <depends>com.intellij.modules.androidstudio</depends>
-  <depends>com.intellij.modules.cmake</depends>
-  -->
-  <depends>com.intellij.modules.lang</depends>
-  <depends optional="true" config-file="">com.intellij.clion</depends>
-
-  <extensions defaultExtensionNs="com.intellij">
-    <!--
-    <lang.parserDefinition language="CMake"
-                           factoryArgument="parserDefinition"
-                           factoryClass="com.cmakeplugin.CMakeExtensionFactory"  />
-    <lang.syntaxHighlighterFactory language="CMake"
-                                   factoryArgument="syntaxHighlighterFactory"
-                                   factoryClass="com.cmakeplugin.CMakeExtensionFactory"  />
-    <lang.braceMatcher language="CMake"
-                       factoryArgument="braceMatcher"
-                       factoryClass="com.cmakeplugin.CMakeExtensionFactory"  />
-     -->
-    <fileTypeFactory implementation="com.cmakeplugin.CMakeFileTypeFactory"/>
-    <colorSettingsPage implementation="com.cmakeplugin.CMakeColorSettingsPage"/>
-
-    <annotator language="CMake" implementationClass="com.cmakeplugin.annotator.CMakeAnnotator" />
-<!--
-    <annotator language="CMake"
-               factoryArgument="Annotator"
-               factoryClass="com.cmakeplugin.CMakeExtensionFactory"  />
--->
-
-    <localInspection language="CMake"
-                     displayName="CMake: Possibly not defined Variable"
-                     groupPath="CMake"
-                     groupBundle="messages.InspectionsBundle"
-                     groupKey="group.names.probable.bugs"
-                     enabledByDefault="true"
-                     level="WEAK WARNING"
-                     implementationClass="com.cmakeplugin.inspections.NotDefinedVariableInspection" />
-
-  </extensions>
-
-
-  <actions>
-    <!-- Add your actions here -->
-  </actions>
-
-</idea-plugin>
+</consulo-plugin>

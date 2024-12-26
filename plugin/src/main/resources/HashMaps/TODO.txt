@@ -1,0 +1,5 @@
+remove this files - and add generators
+
+info from https://github.com/Kitware/CMake/tree/master/Help
+
+maybe write rst to html converter info https://github.com/thoward/rst2html
