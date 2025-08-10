@@ -3,9 +3,9 @@ package consulo.cmake;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.colorScheme.TextAttributesKey;
 import consulo.colorScheme.setting.AttributesDescriptor;
-import consulo.colorScheme.setting.ColorDescriptor;
 import consulo.language.editor.colorScheme.setting.ColorSettingsPage;
 import consulo.language.editor.highlight.SyntaxHighlighter;
+import consulo.localize.LocalizeValue;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -125,7 +125,7 @@ public class CMakeColorSettingsPage implements ColorSettingsPage {
 
   @Nonnull
   @Override
-  public String getDisplayName() {
-    return "CMake";
+  public LocalizeValue getDisplayName() {
+    return CMakeLanguage.INSTANCE.getDisplayName();
   }
 }
