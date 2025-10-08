@@ -8,12 +8,13 @@ import consulo.cmake.utils.CMakePSITreeSearch;
 import consulo.cmake.utils.CMakeVarStringUtil;
 import consulo.document.util.TextRange;
 import consulo.language.Language;
-import consulo.language.editor.inspection.InspectionsBundle;
 import consulo.language.editor.inspection.LocalInspectionTool;
 import consulo.language.editor.inspection.ProblemsHolder;
+import consulo.language.editor.inspection.localize.InspectionLocalize;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiElementVisitor;
+import consulo.localize.LocalizeValue;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -60,8 +61,8 @@ public class NotDefinedVariableInspection extends LocalInspectionTool {
 
     @Nonnull
     @Override
-    public String getGroupDisplayName() {
-        return InspectionsBundle.message("group.names.probable.bugs");
+    public LocalizeValue getGroupDisplayName() {
+        return InspectionLocalize.groupNamesProbableBugs();
     }
 
     @Override
@@ -71,8 +72,8 @@ public class NotDefinedVariableInspection extends LocalInspectionTool {
 
     @Nonnull
     @Override
-    public String getDisplayName() {
-        return "Possibly not defined Variable";
+    public LocalizeValue getDisplayName() {
+        return LocalizeValue.localizeTODO("Possibly not defined Variable");
     }
 
     @Nonnull

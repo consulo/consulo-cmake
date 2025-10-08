@@ -4,14 +4,18 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.cmake.CMakeLanguage;
 import consulo.cmake.utils.CMakePlusPDC;
 import consulo.language.Language;
-import consulo.language.editor.inspection.*;
+import consulo.language.editor.inspection.LocalInspectionTool;
+import consulo.language.editor.inspection.LocalQuickFix;
+import consulo.language.editor.inspection.ProblemDescriptor;
+import consulo.language.editor.inspection.ProblemsHolder;
+import consulo.language.editor.inspection.localize.InspectionLocalize;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiElementVisitor;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.jetbrains.annotations.Nls;
 
 @ExtensionImpl
 public class BuiltinCommandLowercaseInspection extends LocalInspectionTool {
@@ -48,14 +52,14 @@ public class BuiltinCommandLowercaseInspection extends LocalInspectionTool {
 
     @Nonnull
     @Override
-    public String getGroupDisplayName() {
-        return InspectionsBundle.message("group.names.naming.conventions");
+    public LocalizeValue getGroupDisplayName() {
+        return InspectionLocalize.groupNamesNamingConventions();
     }
 
     @Nonnull
     @Override
-    public String getDisplayName() {
-        return "Builtin commands should be used in lowercase";
+    public LocalizeValue getDisplayName() {
+        return LocalizeValue.localizeTODO("Builtin commands should be used in lowercase");
     }
 
     @Nonnull
@@ -65,11 +69,10 @@ public class BuiltinCommandLowercaseInspection extends LocalInspectionTool {
     }
 
     private static class BuiltinCommandLowercaseQuickFix implements LocalQuickFix {
-        @Nls(capitalization = Nls.Capitalization.Sentence)
         @Nonnull
         @Override
-        public String getFamilyName() {
-            return "Convert command name to lowercase";
+        public LocalizeValue getName() {
+            return LocalizeValue.localizeTODO("Convert command name to lowercase");
         }
 
         @Override
