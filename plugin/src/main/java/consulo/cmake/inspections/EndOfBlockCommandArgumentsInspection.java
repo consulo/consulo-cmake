@@ -47,6 +47,7 @@ public class EndOfBlockCommandArgumentsInspection extends LocalInspectionTool {
 
     @Override
     public boolean isEnabledByDefault() {
+
         return true;
     }
 

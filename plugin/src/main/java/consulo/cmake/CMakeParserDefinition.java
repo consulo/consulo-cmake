@@ -2,6 +2,7 @@ package consulo.cmake;
 
 import com.cmakeplugin.parsing.CMakeParser;
 import com.cmakeplugin.psi.CMakeTypes;
+import com.cmakeplugin.psi.impl.CMakeTypesFactory;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.cmake.psi.CMakeFile;
@@ -85,7 +86,7 @@ public class CMakeParserDefinition implements ParserDefinition {
     @Nonnull
     @Override
     public PsiElement createElement(@Nonnull ASTNode astNode) {
-        return CMakeTypes.Factory.createElement(astNode);
+        return CMakeTypesFactory.createElement(astNode);
     }
 
     @Nonnull

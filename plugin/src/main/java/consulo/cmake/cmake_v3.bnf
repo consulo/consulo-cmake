@@ -12,7 +12,6 @@
   elementTypeHolderClass="com.cmakeplugin.psi.CMakeTypes"
   elementTypeClass="consulo.cmake.psi.CMakeElementType"
   tokenTypeClass="consulo.cmake.psi.CMakeTokenType"
-  version = "3"
 
   implements("unquoted_argument_maybe_variable_container")="consulo.language.psi.PsiNameIdentifierOwner"
 //  methods(".*_container")=[getReferences]
