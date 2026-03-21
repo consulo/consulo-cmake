@@ -4,15 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>consulo</groupId>
-        <artifactId>arch.managment</artifactId>
+        <artifactId>arch.ide-api-provided</artifactId>
         <version>3-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>consulo.plugin</groupId>
-    <artifactId>consulo.cmake.parent</artifactId>
+    <artifactId>consulo.cmake-external-system-impl</artifactId>
     <version>3-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <repositories>
         <repository>
@@ -25,11 +25,16 @@
         </repository>
     </repositories>
 
-    <modules>
-        <module>api</module>
-        <module>language-impl</module>
-        <module>external-system-impl</module>
-        <module>plugin</module>
-    </modules>
-
+    <dependencies>
+        <dependency>
+            <groupId>consulo.plugin</groupId>
+            <artifactId>consulo.cmake-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

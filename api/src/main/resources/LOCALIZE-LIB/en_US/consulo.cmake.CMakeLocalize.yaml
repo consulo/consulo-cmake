@@ -1,0 +1,113 @@
+file.type.cmake.description:
+    text: CMake language file
+
+color.settings.comment:
+    text: Line or Brackets comment
+color.settings.braces:
+    text: "Braces \"(\""
+color.settings.separator:
+    text: Commands and arguments separator
+color.settings.bad.char:
+    text: Bad char
+color.settings.keyword:
+    text: Keyword
+color.settings.bracket.argument:
+    text: Bracket argument
+color.settings.quoted.argument:
+    text: Quoted argument
+color.settings.cmake.command:
+    text: Predefined literal//CMake command
+color.settings.unquoted.legacy:
+    text: Unquoted legacy argument
+color.settings.cmake.var.ref:
+    text: Variable//CMake variable reference
+color.settings.var.ref:
+    text: Variable//Local variable reference
+color.settings.cmake.var.def:
+    text: Variable//CMake variable definition
+color.settings.var.def:
+    text: Variable//Local variable definition
+color.settings.path.url:
+    text: Path or URL reference
+color.settings.cmake.operator:
+    text: Predefined literal//CMake operator
+color.settings.cmake.property:
+    text: Predefined literal//CMake property
+color.settings.cmake.boolean:
+    text: Predefined literal//CMake boolean
+color.settings.cmake.module:
+    text: Predefined literal//CMake module
+color.settings.function:
+    text: Function name
+color.settings.macros:
+    text: Macros name
+
+inspection.not.defined.variable.display.name:
+    text: Possibly not defined Variable
+inspection.not.defined.variable.message:
+    text: "Possibly not defined Variable: {0}"
+
+inspection.variable.unused.display.name:
+    text: Variable is set but never used
+inspection.variable.unused.message:
+    text: Variable is set but never used.
+
+inspection.builtin.command.lowercase.display.name:
+    text: Builtin commands should be used in lowercase
+inspection.builtin.command.lowercase.message:
+    text: Builtin commands should be used in lowercase.
+inspection.builtin.command.lowercase.fix:
+    text: Convert command name to lowercase
+
+inspection.end.of.block.args.display.name:
+    text: End-of-block commands should not take arguments
+inspection.end.of.block.args.message:
+    text: Commands else, endif, endforeach, endwhile, endfunction, endmacro should not take arguments.
+inspection.end.of.block.args.fix:
+    text: Convert to empty arguments list
+
+annotator.deprecated.command:
+    text: Deprecated command
+annotator.deprecated.property:
+    text: Deprecated property
+
+cmake.system.name:
+    text: CMake
+
+build.directory.label:
+    text: "Build directory:"
+build.directory.dialog.title:
+    text: Build Directory
+build.directory.dialog.description:
+    text: Select CMake build directory
+build.directory.required:
+    text: Build directory must be specified
+
+task.build.all:
+    text: Build all targets
+task.clean:
+    text: Clean build artifacts
+task.build.target:
+    text: "Build target: {0}"
+
+status.writing.query:
+    text: Writing CMake File API query...
+status.configuring:
+    text: Configuring CMake project...
+status.reading.structure:
+    text: Reading CMake project structure...
+
+error.no.cmake.lists:
+    text: "No CMakeLists.txt found at: {0}"
+error.failed.write.query:
+    text: "Failed to write CMake File API query: {0}"
+error.cannot.create.build.dir:
+    text: "Cannot create build directory: {0}"
+error.cmake.cancelled:
+    text: CMake configuration cancelled
+error.cmake.exit.code:
+    text: "cmake exited with code {0}"
+error.failed.run.cmake:
+    text: "Failed to run cmake: {0}"
+error.failed.read.file:
+    text: "Failed to read {0}: {1}"

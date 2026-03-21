@@ -1,3 +1,4 @@
 .consulo
 target/
 plugin/sandbox
+test/

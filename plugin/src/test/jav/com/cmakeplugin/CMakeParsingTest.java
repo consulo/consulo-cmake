@@ -1,7 +1,7 @@
 package com.cmakeplugin;
 
 import com.intellij.testFramework.ParsingTestCase;
-import consulo.cmake.CMakeParserDefinition;
+import consulo.cmake.language.impl.CMakeParserDefinition;
 
 public class CMakeParsingTest extends ParsingTestCase {
   public CMakeParsingTest() {
