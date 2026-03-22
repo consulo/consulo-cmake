@@ -4,6 +4,7 @@
 module consulo.cmake.external.system.impl {
     requires transitive consulo.cmake;
     requires consulo.external.system.api;
+    requires consulo.execution.debugger.dap;
 
     requires com.google.gson;
     requires org.slf4j;
@@ -11,6 +12,8 @@ module consulo.cmake.external.system.impl {
     exports consulo.cmake.externalSystem.impl;
     exports consulo.cmake.setting;
     exports consulo.cmake.importProvider;
+    exports consulo.cmake.debug;
+    exports consulo.cmake.debug.breakpoint;
 
     opens consulo.cmake.setting to consulo.util.xml.serializer;
 }

@@ -54,6 +54,9 @@
                         <skip>${dev.mode}</skip>
                         <version>${build.number}</version>
                     </packaging>
+                    <dependencies>
+                        <dependency>consulo.dap</dependency>
+                    </dependencies>
                 </configuration>
                 <executions>
                     <execution>

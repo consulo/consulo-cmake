@@ -4,6 +4,8 @@
 
     <vendor>consulo.io</vendor>
 
+    <depends>consulo.dap</depends>
+
     <tags>
         <tag>project.import</tag>
         <tag>build.framework</tag>

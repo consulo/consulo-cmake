@@ -129,7 +129,7 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
                         process.destroyForcibly();
                         throw new ExternalSystemException(CMakeLocalize.errorCmakeCancelled().get());
                     }
-                    notify(listener, id, line);
+                    listener.onTaskOutput(id, line + "\n", true);
                 }
             }
             int exitCode = process.waitFor();

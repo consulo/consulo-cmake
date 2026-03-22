@@ -111,3 +111,24 @@ error.failed.run.cmake:
     text: "Failed to run cmake: {0}"
 error.failed.read.file:
     text: "Failed to read {0}: {1}"
+
+debug.configuration.type.name:
+    text: CMake Script Debugger
+debug.configuration.name:
+    text: CMake Debug
+debug.source.directory.label:
+    text: "Source directory:"
+debug.build.directory.label:
+    text: "Build directory:"
+debug.cmake.options.label:
+    text: "CMake options:"
+debug.error.source.directory.empty:
+    text: Source directory must be specified
+debug.error.source.directory.not.found:
+    text: "Source directory not found: {0}"
+debug.error.no.cmake.lists:
+    text: "No CMakeLists.txt found in: {0}"
+debug.error.cmake.version:
+    text: CMake 3.27 or later is required for script debugging (--debugger flag)
+debug.error.failed.start:
+    text: "Failed to start cmake debugger: {0}"
