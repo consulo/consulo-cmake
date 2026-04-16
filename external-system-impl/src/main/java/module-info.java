@@ -3,6 +3,7 @@
  */
 module consulo.cmake.external.system.impl {
     requires transitive consulo.cmake;
+    requires consulo.ide.api;
     requires consulo.external.system.api;
     requires consulo.execution.debugger.dap;
 

@@ -9,7 +9,7 @@ import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.externalSystem.setting.AbstractExternalSystemLocalSettings;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -34,7 +34,7 @@ public class CMakeLocalSettings extends AbstractExternalSystemLocalSettings
 
     @Nonnull
     public static CMakeLocalSettings getInstance(@Nonnull Project project) {
-        return ServiceManager.getService(project, CMakeLocalSettings.class);
+        return project.getInstance(CMakeLocalSettings.class);
     }
 
     @Nullable

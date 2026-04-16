@@ -10,7 +10,7 @@ import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.externalSystem.setting.AbstractExternalSystemSettings;
 import consulo.externalSystem.setting.ExternalSystemSettingsListener;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.util.xml.serializer.annotation.AbstractCollection;
 import jakarta.inject.Inject;
@@ -37,7 +37,7 @@ public class CMakeSettings extends AbstractExternalSystemSettings<CMakeSettings,
 
     @Nonnull
     public static CMakeSettings getInstance(@Nonnull Project project) {
-        return ServiceManager.getService(project, CMakeSettings.class);
+        return project.getInstance(CMakeSettings.class);
     }
 
     @Override
