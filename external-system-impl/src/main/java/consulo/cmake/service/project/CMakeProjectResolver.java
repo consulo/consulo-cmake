@@ -199,9 +199,6 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         ProjectData projectData = new ProjectData(CMakeConstants.SYSTEM_ID, projectName, sourcePath, linkedProjectPath);
         DataNode<ProjectData> projectNode = new DataNode<>(ProjectKeys.PROJECT, projectData, null);
 
-        // Root module for the project directory
-        createRootModule(projectNode, projectName, sourcePath, linkedProjectPath);
-
         // Always-available build/clean tasks
         projectNode.createChild(ProjectKeys.TASK,
             new TaskData(CMakeConstants.SYSTEM_ID, "build", linkedProjectPath, CMakeLocalize.taskBuildAll().get()));
@@ -209,6 +206,7 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
             new TaskData(CMakeConstants.SYSTEM_ID, "clean", linkedProjectPath, CMakeLocalize.taskClean().get()));
 
         // Parse targets
+        Set<String> targetNames = new HashSet<>();
         if (configurations != null && !configurations.isEmpty()) {
             JsonObject config = configurations.get(0).getAsJsonObject();
             JsonArray targets = config.getAsJsonArray("targets");
@@ -216,10 +214,19 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
                 for (JsonElement targetEl : targets) {
                     String targetJsonFile = getStr(targetEl.getAsJsonObject(), "jsonFile");
                     if (targetJsonFile == null) continue;
-                    parseTarget(gson, new File(replyDir, targetJsonFile), sourcePath, buildDir.getAbsolutePath(),
-                        projectNode, linkedProjectPath);
+                    String targetName = parseTarget(gson, new File(replyDir, targetJsonFile), sourcePath,
+                        buildDir.getAbsolutePath(), projectNode, linkedProjectPath);
+                    if (targetName != null) {
+                        targetNames.add(targetName);
+                    }
                 }
             }
+        }
+
+        // A target named after the project already stands for the project directory - a second module of that name
+        // would collide with it, and both would be shown as the root module of the project.
+        if (!targetNames.contains(projectName)) {
+            createRootModule(projectNode, projectName, sourcePath, linkedProjectPath);
         }
 
         return projectNode;
@@ -233,16 +240,17 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         rootNode.createChild(ProjectKeys.CONTENT_ROOT, new ContentRootData(CMakeConstants.SYSTEM_ID, sourcePath));
     }
 
-    private void parseTarget(Gson gson, File targetFile, String sourcePath, String buildPath,
-                             DataNode<ProjectData> projectNode, String linkedProjectPath)
+    @Nullable
+    private String parseTarget(Gson gson, File targetFile, String sourcePath, String buildPath,
+                               DataNode<ProjectData> projectNode, String linkedProjectPath)
         throws ExternalSystemException {
-        if (!targetFile.exists()) return;
+        if (!targetFile.exists()) return null;
 
         JsonObject target = readJson(gson, targetFile);
         String name = getStr(target, "name");
         String type = getStr(target, "type");
         if (name == null || type == null || SKIP_TARGET_TYPES.contains(type)) {
-            return;
+            return null;
         }
 
         // Use target name as unique module ID
@@ -300,6 +308,8 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         // Per-target build task
         projectNode.createChild(ProjectKeys.TASK,
             new TaskData(CMakeConstants.SYSTEM_ID, name, linkedProjectPath, CMakeLocalize.taskBuildTarget(name).get()));
+
+        return name;
     }
 
     // -------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.externalSystem.setting.AbstractExternalSystemSettings;
+import consulo.externalSystem.setting.DelegatingExternalSystemSettingsListener;
 import consulo.externalSystem.setting.ExternalSystemSettingsListener;
 import consulo.application.Application;
 import consulo.project.Project;
@@ -45,7 +46,7 @@ public class CMakeSettings extends AbstractExternalSystemSettings<CMakeSettings,
         getProject().getMessageBus().connect(getProject()).subscribe(CMakeSettingsListener.TOPIC, new CMakeSettingsListenerAdapter(listener));
     }
 
-    private static class CMakeSettingsListenerAdapter extends consulo.externalSystem.setting.DelegatingExternalSystemSettingsListener<CMakeProjectSettings>
+    private static class CMakeSettingsListenerAdapter extends DelegatingExternalSystemSettingsListener<CMakeProjectSettings>
         implements CMakeSettingsListener {
         CMakeSettingsListenerAdapter(ExternalSystemSettingsListener<CMakeProjectSettings> delegate) {
             super(delegate);

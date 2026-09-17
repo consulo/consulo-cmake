@@ -20,10 +20,10 @@ import java.io.File;
  * @author VISTALL
  */
 @ExtensionImpl
-public class CMakeModuleImportProvider extends AbstractExternalModuleImportProvider<ImportFromCMakeControl> {
+public class CMakeModuleImportProvider extends AbstractExternalModuleImportProvider {
     @Inject
     public CMakeModuleImportProvider(@Nonnull ProjectDataManager dataManager) {
-        super(dataManager, new ImportFromCMakeControl(), CMakeConstants.SYSTEM_ID);
+        super(dataManager, CMakeConstants.SYSTEM_ID);
     }
 
     @Nullable
@@ -41,7 +41,7 @@ public class CMakeModuleImportProvider extends AbstractExternalModuleImportProvi
     }
 
     @Override
-    protected void doPrepare(@Nonnull ExternalModuleImportContext<ImportFromCMakeControl> context) {
+    protected void doPrepare(@Nonnull ExternalModuleImportContext context) {
     }
 
     @Override
@@ -61,6 +61,6 @@ public class CMakeModuleImportProvider extends AbstractExternalModuleImportProvi
     }
 
     @Override
-    protected void applyExtraSettings(@Nonnull ExternalModuleImportContext<ImportFromCMakeControl> context) {
+    protected void applyExtraSettings(@Nonnull ExternalModuleImportContext context) {
     }
 }
