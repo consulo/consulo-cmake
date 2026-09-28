@@ -7,12 +7,18 @@ import consulo.cmake.setting.*;
 import consulo.externalSystem.ExternalSystemManager;
 import consulo.externalSystem.model.ProjectSystemId;
 import consulo.externalSystem.service.project.ExternalSystemProjectResolver;
+import consulo.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware;
+import consulo.externalSystem.service.project.autoimport.ExternalSystemAutoImportAware;
 import consulo.externalSystem.task.ExternalSystemTaskManager;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.project.Project;
 import consulo.util.lang.Pair;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
+import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -20,7 +26,12 @@ import java.util.function.Supplier;
  * @author VISTALL
  */
 @ExtensionImpl
-public class CMakeManager implements ExternalSystemManager<CMakeProjectSettings, CMakeSettingsListener, CMakeSettings, CMakeLocalSettings, CMakeExecutionSettings> {
+public class CMakeManager implements ExternalSystemAutoImportAware,
+    ExternalSystemManager<CMakeProjectSettings, CMakeSettingsListener, CMakeSettings, CMakeLocalSettings, CMakeExecutionSettings> {
+    private final CMakeAutoImportAware myAutoImportAware = new CMakeAutoImportAware();
+
+    private final ExternalSystemAutoImportAware myAutoImportDelegate = new CachingExternalSystemAutoImportAware(myAutoImportAware);
+
     @Nonnull
     @Override
     public ProjectSystemId getSystemId() {
@@ -77,5 +88,16 @@ public class CMakeManager implements ExternalSystemManager<CMakeProjectSettings,
                 return CMakeConstants.CMAKE_LISTS_TXT.equals(file.getName());
             }
         };
+    }
+
+    @Nullable
+    @Override
+    public String getAffectedExternalProjectPath(String changedFileOrDirPath, Project project) {
+        return myAutoImportDelegate.getAffectedExternalProjectPath(changedFileOrDirPath, project);
+    }
+
+    @Override
+    public List<Path> getAffectedExternalProjectFilePaths(String projectPath, Project project) {
+        return myAutoImportAware.getAffectedExternalProjectFilePaths(projectPath, project);
     }
 }

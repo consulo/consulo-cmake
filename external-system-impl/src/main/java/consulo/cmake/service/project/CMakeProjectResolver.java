@@ -23,9 +23,7 @@ import consulo.externalSystem.service.project.ProjectData;
 import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,16 +52,8 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         throws ExternalSystemException, IllegalArgumentException, IllegalStateException {
         myCancelled = false;
 
-        File sourceDir = new File(projectPath);
-        if (sourceDir.isFile()) {
-            sourceDir = sourceDir.getParentFile();
-        }
-
-        String buildDirPath = settings != null ? settings.getBuildDirectory() : null;
-        if (buildDirPath == null || buildDirPath.isBlank()) {
-            buildDirPath = sourceDir.getAbsolutePath() + File.separator + "build";
-        }
-        File buildDir = new File(buildDirPath);
+        File sourceDir = CMakeProjectPaths.getSourceDir(projectPath);
+        File buildDir = CMakeProjectPaths.getBuildDir(sourceDir, settings != null ? settings.getBuildDirectory() : null);
 
         File cmakeListsFile = new File(sourceDir, CMakeConstants.CMAKE_LISTS_TXT);
         if (!cmakeListsFile.exists()) {
@@ -79,7 +69,7 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         }
 
         notify(listener, id, CMakeLocalize.statusReadingStructure().get());
-        File replyDir = buildDir.toPath().resolve(".cmake/api/v1/reply").toFile();
+        File replyDir = CMakeFileApi.getReplyDir(buildDir);
         if (!replyDir.exists()) {
             return fallbackResolve(sourceDir, cmakeListsFile, projectPath);
         }
@@ -92,13 +82,8 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
     // -------------------------------------------------------------------------
 
     private static void writeQueryFile(File buildDir) throws ExternalSystemException {
-        Path queryDir = buildDir.toPath().resolve(".cmake/api/v1/query");
         try {
-            Files.createDirectories(queryDir);
-            Path queryFile = queryDir.resolve("codemodel-v2");
-            if (!Files.exists(queryFile)) {
-                Files.createFile(queryFile);
-            }
+            CMakeFileApi.writeQueryFiles(buildDir);
         }
         catch (IOException e) {
             throw new ExternalSystemException(CMakeLocalize.errorFailedWriteQuery(e.getMessage()).get());
@@ -150,31 +135,14 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         throws ExternalSystemException {
         Gson gson = new Gson();
 
-        File[] indexFiles = replyDir.listFiles((d, name) -> name.startsWith("index-") && name.endsWith(".json"));
-        if (indexFiles == null || indexFiles.length == 0) {
+        File indexFile = CMakeFileApi.findLatestIndex(replyDir);
+        if (indexFile == null) {
             return fallbackResolve(sourceDir, new File(sourceDir, CMakeConstants.CMAKE_LISTS_TXT), linkedProjectPath);
-        }
-
-        File indexFile = indexFiles[0];
-        for (File f : indexFiles) {
-            if (f.lastModified() > indexFile.lastModified()) {
-                indexFile = f;
-            }
         }
 
         JsonObject index = readJson(gson, indexFile);
 
-        String codemodelFile = null;
-        JsonArray objects = index.getAsJsonArray("objects");
-        if (objects != null) {
-            for (JsonElement obj : objects) {
-                JsonObject o = obj.getAsJsonObject();
-                if ("codemodel".equals(getStr(o, "kind"))) {
-                    codemodelFile = getStr(o, "jsonFile");
-                    break;
-                }
-            }
-        }
+        String codemodelFile = CMakeFileApi.findObjectJsonFile(index, CMakeFileApi.CODEMODEL_KIND);
         if (codemodelFile == null) {
             return fallbackResolve(sourceDir, new File(sourceDir, CMakeConstants.CMAKE_LISTS_TXT), linkedProjectPath);
         }
@@ -351,8 +319,12 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
     }
 
     private static JsonObject readJson(Gson gson, File file) throws ExternalSystemException {
-        try (Reader reader = Files.newBufferedReader(file.toPath())) {
-            return gson.fromJson(reader, JsonObject.class);
+        try {
+            JsonObject json = CMakeFileApi.readJson(gson, file);
+            if (json == null) {
+                throw new IOException("empty");
+            }
+            return json;
         }
         catch (IOException e) {
             throw new ExternalSystemException(CMakeLocalize.errorFailedReadFile(file.getName(), e.getMessage()).get());
@@ -361,8 +333,7 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
 
     @Nullable
     private static String getStr(JsonObject obj, String key) {
-        JsonElement el = obj.get(key);
-        return (el != null && !el.isJsonNull()) ? el.getAsString() : null;
+        return CMakeFileApi.getString(obj, key);
     }
 
     @Nullable

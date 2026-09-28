@@ -27,10 +27,6 @@ public interface CMakeSettingsListener extends ExternalSystemSettingsListener<CM
     }
 
     @Override
-    default void onUseAutoImportChange(boolean currentValue, String linkedProjectPath) {
-    }
-
-    @Override
     default void onBulkChangeStart() {
     }
 
