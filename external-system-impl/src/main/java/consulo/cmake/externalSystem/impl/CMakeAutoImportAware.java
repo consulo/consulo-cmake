@@ -13,8 +13,10 @@ import jakarta.annotation.Nullable;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,20 +38,25 @@ public class CMakeAutoImportAware implements ExternalSystemAutoImportAware {
             return null;
         }
 
+        Map<File, CMakeProjectSettings> roots = new HashMap<>();
         for (CMakeProjectSettings settings : CMakeSettings.getInstance(project).getLinkedProjectsSettings()) {
             String externalProjectPath = settings.getExternalProjectPath();
             if (externalProjectPath == null) {
                 continue;
             }
+            roots.put(CMakeProjectPaths.getSourceDir(externalProjectPath).getAbsoluteFile(), settings);
+        }
 
-            File sourceDir = CMakeProjectPaths.getSourceDir(externalProjectPath);
-            File buildDir = CMakeProjectPaths.getBuildDir(sourceDir, settings.getBuildDirectory());
-            if (FileUtil.isAncestor(buildDir, file, false)) {
+        for (File dir = file.getAbsoluteFile().getParentFile(); dir != null; dir = dir.getParentFile()) {
+            CMakeProjectSettings settings = roots.get(dir);
+            if (settings == null) {
                 continue;
             }
-            if (FileUtil.isAncestor(sourceDir, file, false)) {
-                return externalProjectPath;
+            File buildDir = CMakeProjectPaths.getBuildDir(dir, settings.getBuildDirectory());
+            if (FileUtil.isAncestor(buildDir, file, false)) {
+                return null;
             }
+            return settings.getExternalProjectPath();
         }
         return null;
     }

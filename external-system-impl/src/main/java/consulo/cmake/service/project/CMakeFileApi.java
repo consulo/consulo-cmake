@@ -136,7 +136,7 @@ public final class CMakeFileApi {
             }
             return result;
         }
-        catch (IOException | JsonParseException | IllegalStateException | InvalidPathException e) {
+        catch (Exception e) {
             LOG.warn("Cannot read CMake file API reply in " + replyDir, e);
             return List.of();
         }
