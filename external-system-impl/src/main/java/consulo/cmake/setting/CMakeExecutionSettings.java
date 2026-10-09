@@ -5,6 +5,8 @@ import consulo.externalSystem.model.setting.ExternalSystemExecutionSettings;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.util.Objects;
+
 /**
  * @author VISTALL
  */
@@ -27,5 +29,22 @@ public class CMakeExecutionSettings extends ExternalSystemExecutionSettings {
     @Nullable
     public String getBuildDirectory() {
         return myBuildDirectory;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + mySourceDirectory.hashCode();
+        result = 31 * result + (myBuildDirectory != null ? myBuildDirectory.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (!super.equals(o)) {
+            return false;
+        }
+        CMakeExecutionSettings that = (CMakeExecutionSettings) o;
+        return mySourceDirectory.equals(that.mySourceDirectory) && Objects.equals(myBuildDirectory, that.myBuildDirectory);
     }
 }
