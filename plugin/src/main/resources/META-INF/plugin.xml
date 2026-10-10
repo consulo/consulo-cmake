@@ -5,6 +5,7 @@
     <vendor>consulo.io</vendor>
 
     <depends>consulo.dap</depends>
+    <depends>consulo.nativeDev</depends>
 
     <tags>
         <tag>project.import</tag>

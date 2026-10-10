@@ -75,6 +75,7 @@
                     </packaging>
                     <dependencies>
                         <dependency>consulo.dap</dependency>
+                        <dependency>consulo.nativeDev</dependency>
                     </dependencies>
                 </configuration>
                 <executions>

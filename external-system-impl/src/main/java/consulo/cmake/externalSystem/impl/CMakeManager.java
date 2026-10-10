@@ -59,7 +59,8 @@ public class CMakeManager implements ExternalSystemAutoImportAware,
             CMakeSettings settings = CMakeSettings.getInstance(project);
             CMakeProjectSettings projectSettings = settings.getLinkedProjectSettings(projectPath);
             String buildDir = projectSettings != null ? projectSettings.getBuildDirectory() : null;
-            return new CMakeExecutionSettings(projectPath, buildDir);
+            String buildType = projectSettings != null ? projectSettings.getBuildTypeOrDefault() : CMakeProjectSettings.DEFAULT_BUILD_TYPE;
+            return new CMakeExecutionSettings(projectPath, buildDir, buildType);
         };
     }
 

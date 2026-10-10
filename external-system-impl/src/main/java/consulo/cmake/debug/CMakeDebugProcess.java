@@ -1,19 +1,40 @@
+/*
+ * Copyright 2013-2026 consulo.io
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package consulo.cmake.debug;
 
 import consulo.cmake.debug.breakpoint.CMakeScriptBreakpointType;
+import consulo.cmake.localize.CMakeLocalize;
 import consulo.component.ProcessCanceledException;
 import consulo.execution.debug.XDebugSession;
 import consulo.execution.debug.breakpoint.XLineBreakpointType;
 import consulo.execution.debugger.dap.DAPDebugProcess;
 import consulo.execution.debugger.dap.protocol.DAP;
 import consulo.execution.debugger.dap.protocol.DAPFactory;
-import consulo.execution.debugger.dap.protocol.LaunchRequestArguments;
-import consulo.platform.Platform;
+import consulo.execution.debugger.dap.protocol.DisconnectArguments;
+import consulo.execution.debugger.dap.protocol.event.ExitedEvent;
+import consulo.execution.ui.ExecutionConsole;
+import consulo.execution.ui.console.ConsoleView;
+import consulo.logging.Logger;
+import consulo.process.ProcessHandler;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * DAP-based debug process for CMake script files (CMakeLists.txt, .cmake).
@@ -22,23 +43,21 @@ import java.util.List;
  * @author VISTALL
  */
 public class CMakeDebugProcess extends DAPDebugProcess {
-    private final int myPort;
-    private final String mySourceDirectory;
-    private final String myBuildDirectory;
-    private final List<String> myExtraOptions;
+    private static final Logger LOG = Logger.getInstance(CMakeDebugProcess.class);
 
-    private volatile Process myCmakeProcess;
+    private static final long CONNECT_TIMEOUT_MS = 30_000;
 
-    public CMakeDebugProcess(@Nonnull XDebugSession session,
-                             int port,
-                             @Nonnull String sourceDirectory,
-                             @Nonnull String buildDirectory,
-                             @Nonnull List<String> extraOptions) {
+    private final ProcessHandler myCMakeProcess;
+    private final String myPipeName;
+    private final AtomicBoolean myDisconnected = new AtomicBoolean();
+
+    @Nullable
+    private volatile CMakeDebuggerConnection myConnection;
+
+    public CMakeDebugProcess(@Nonnull XDebugSession session, @Nonnull ProcessHandler cmakeProcess, @Nonnull String pipeName) {
         super(session);
-        myPort = port;
-        mySourceDirectory = sourceDirectory;
-        myBuildDirectory = buildDirectory;
-        myExtraOptions = extraOptions;
+        myCMakeProcess = cmakeProcess;
+        myPipeName = pipeName;
     }
 
     @Nonnull
@@ -49,32 +68,16 @@ public class CMakeDebugProcess extends DAPDebugProcess {
 
     @Override
     protected DAP createDAP(DAPFactory factory) {
-        startCMake();
-        return factory.createSocketDAP("localhost", myPort);
-    }
-
-    private void startCMake() {
-        List<String> command = new ArrayList<>();
-        command.add("cmake");
-        command.add("--debugger");
-        command.add("--debugger-port");
-        command.add(String.valueOf(myPort));
-        command.add("-S");
-        command.add(mySourceDirectory);
-        command.add("-B");
-        command.add(myBuildDirectory);
-        command.addAll(myExtraOptions);
-
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.redirectErrorStream(true);
         try {
-            myCmakeProcess = pb.start();
-            // Give cmake a moment to open the debugger socket
-            Thread.sleep(300);
+            CMakeDebuggerConnection connection = CMakeDebuggerPipe.connect(myPipeName, myCMakeProcess, CONNECT_TIMEOUT_MS);
+            myConnection = connection;
+            return factory.createStreamDAP(connection.input(), connection.output());
+        }
+        catch (CMakeDebuggerExitedException e) {
+            throw failStart(CMakeLocalize.debugErrorExited(e.getExitCode()).get(), e);
         }
         catch (IOException e) {
-            throw new ProcessCanceledException(
-                new RuntimeException("Failed to start cmake debugger: " + e.getMessage(), e));
+            throw failStart(CMakeLocalize.debugErrorPipeTimeout(myPipeName).get(), e);
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -82,26 +85,70 @@ public class CMakeDebugProcess extends DAPDebugProcess {
         }
     }
 
+    private ProcessCanceledException failStart(String message, Exception cause) {
+        LOG.warn(message, cause);
+        getSession().reportError(message);
+        getSession().stop();
+        return new ProcessCanceledException(cause);
+    }
+
+    @Override
+    protected CompletableFuture<?> startDebuggee(DAP dap) {
+        return CompletableFuture.completedFuture(null);
+    }
+
     @Override
     protected String getAdapterId() {
         return "cmake";
     }
 
+    @Nullable
     @Override
-    protected LaunchRequestArguments createLaunchRequestArguments() {
-        // cmake --debugger starts automatically; send a minimal launch to satisfy the DAP handshake
-        LaunchRequestArguments launch = new LaunchRequestArguments();
-        launch.env = Platform.current().os().environmentVariables();
-        return launch;
+    protected ProcessHandler doGetProcessHandler() {
+        return myCMakeProcess;
+    }
+
+    @Override
+    public ExecutionConsole createConsole() {
+        ExecutionConsole console = super.createConsole();
+        if (console instanceof ConsoleView consoleView) {
+            consoleView.attachToProcess(myCMakeProcess);
+        }
+        return console;
+    }
+
+    @Override
+    protected void onExited(ExitedEvent event) {
+    }
+
+    @Override
+    protected void onTerminated() {
+        if (!myDisconnected.compareAndSet(false, true)) {
+            return;
+        }
+        DAP dap = getDAP();
+        DisconnectArguments arguments = new DisconnectArguments();
+        arguments.terminateDebuggee = false;
+        dap.disconnect(arguments).whenComplete((o, error) -> dap.close());
     }
 
     @Override
     protected void stopImpl() {
-        super.stopImpl();
-        Process process = myCmakeProcess;
-        if (process != null) {
-            process.destroyForcibly();
-            myCmakeProcess = null;
+        if (myDisconnected.compareAndSet(false, true)) {
+            super.stopImpl();
         }
+        CMakeDebuggerConnection connection = myConnection;
+        myConnection = null;
+        if (connection != null) {
+            try {
+                connection.channel().close();
+            }
+            catch (IOException ignored) {
+            }
+        }
+        if (!myCMakeProcess.isProcessTerminated()) {
+            myCMakeProcess.destroyProcess();
+        }
+        CMakeDebuggerPipe.delete(myPipeName);
     }
 }

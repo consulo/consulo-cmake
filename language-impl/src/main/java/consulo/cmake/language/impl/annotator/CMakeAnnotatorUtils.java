@@ -8,7 +8,7 @@ import consulo.cmake.utils.CMakePSITreeSearch;
 import consulo.cmake.utils.CMakeVarStringUtil;
 import consulo.colorScheme.TextAttributesKey;
 import consulo.document.util.TextRange;
-import consulo.language.editor.annotation.Annotation;
+import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.language.editor.annotation.AnnotationHolder;
 import consulo.language.editor.inspection.ProblemHighlightType;
 import consulo.language.psi.PsiElement;
@@ -147,16 +147,20 @@ class CMakeAnnotatorUtils {
   private static boolean createWeakWarningAnnotation(
       @Nonnull TextRange range, @Nonnull AnnotationHolder holder, @Nonnull String message) {
     holder
-        .createWeakWarningAnnotation(range, message)
-        .setHighlightType(ProblemHighlightType.WEAK_WARNING);
+        .newWeakWarn(LocalizeValue.of(message))
+        .range(range)
+        .highlightType(ProblemHighlightType.WEAK_WARNING)
+        .create();
     return true;
   }
 
   private static boolean createDeprecatedAnnotation(
       @Nonnull PsiElement element, @Nonnull AnnotationHolder holder, @Nonnull LocalizeValue message) {
     holder
-        .createWarningAnnotation(element, message.get())
-        .setHighlightType(ProblemHighlightType.LIKE_DEPRECATED);
+        .newWarn(message)
+        .range(element)
+        .highlightType(ProblemHighlightType.LIKE_DEPRECATED)
+        .create();
     return true;
   }
 
@@ -171,9 +175,11 @@ class CMakeAnnotatorUtils {
       @Nonnull TextRange range,
       @Nonnull AnnotationHolder holder,
       @Nonnull TextAttributesKey textAttKey) {
-    Annotation annotation = holder.createInfoAnnotation(range, textAttKey.getExternalName());
-    annotation.setTooltip(LocalizeValue.empty());
-    annotation.setTextAttributes(textAttKey);
+    holder
+        .newSilentAnnotation(HighlightSeverity.INFORMATION)
+        .range(range)
+        .textAttributes(textAttKey)
+        .create();
     return true;
   }
 }

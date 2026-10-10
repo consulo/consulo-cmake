@@ -1,23 +1,26 @@
 package consulo.cmake.service.task;
 
+import consulo.cmake.externalSystem.impl.CMakeConstants;
+import consulo.cmake.localize.CMakeLocalize;
+import consulo.cmake.service.process.CMakeProcessRunner;
 import consulo.cmake.setting.CMakeExecutionSettings;
+import consulo.cmake.setting.CMakeProjectSettings;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
-import consulo.externalSystem.model.task.ExternalSystemTaskNotificationEvent;
 import consulo.externalSystem.model.task.ExternalSystemTaskNotificationListener;
 import consulo.externalSystem.rt.model.ExternalSystemException;
 import consulo.externalSystem.task.ExternalSystemTaskManager;
+import consulo.process.ExecutionException;
+import consulo.process.cmd.GeneralCommandLine;
 
 import jakarta.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author VISTALL
  */
 public class CMakeTaskManager implements ExternalSystemTaskManager<CMakeExecutionSettings> {
-    private volatile Process myProcess;
+    private final CMakeProcessRunner myRunner = new CMakeProcessRunner();
 
     @Override
     public void executeTasks(ExternalSystemTaskId id,
@@ -34,64 +37,45 @@ public class CMakeTaskManager implements ExternalSystemTaskManager<CMakeExecutio
             if (sourceDir.isFile()) sourceDir = sourceDir.getParentFile();
             buildDir = sourceDir.getAbsolutePath() + File.separator + "build";
         }
+        String buildType = settings != null ? settings.getBuildType() : CMakeProjectSettings.DEFAULT_BUILD_TYPE;
 
         for (String taskName : taskNames) {
-            runCMakeBuild(id, taskName, buildDir, listener);
+            runCMakeBuild(id, taskName, buildDir, buildType, listener);
         }
     }
 
-    private void runCMakeBuild(ExternalSystemTaskId id, String taskName, String buildDir,
+    private void runCMakeBuild(ExternalSystemTaskId id, String taskName, String buildDir, String buildType,
                                ExternalSystemTaskNotificationListener listener) throws ExternalSystemException {
-        List<String> command = new ArrayList<>();
-        command.add("cmake");
-        command.add("--build");
-        command.add(buildDir);
+        GeneralCommandLine commandLine = new GeneralCommandLine(CMakeConstants.CMAKE_EXECUTABLE)
+            .withParameters("--build", buildDir, "--config", buildType);
 
         if ("clean".equals(taskName)) {
-            command.add("--target");
-            command.add("clean");
+            commandLine.addParameters("--target", "clean");
         }
         else if (!"build".equals(taskName)) {
-            command.add("--target");
-            command.add(taskName);
+            commandLine.addParameters("--target", taskName);
         }
 
-        listener.onTaskOutput(id, "Running: " + String.join(" ", command) + "\n", true);
+        listener.onTaskOutput(id, "Running: " + commandLine.getCommandLineString() + "\n", true);
 
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.redirectErrorStream(true);
+        int exitCode;
         try {
-            myProcess = pb.start();
-            try (var reader = myProcess.inputReader()) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    listener.onTaskOutput(id, line + "\n", true);
-                }
-            }
-            int exitCode = myProcess.waitFor();
-            if (exitCode != 0) {
-                throw new ExternalSystemException("cmake --build exited with code " + exitCode);
-            }
+            exitCode = myRunner.run(commandLine, id, listener);
         }
-        catch (IOException | InterruptedException e) {
+        catch (ExecutionException e) {
             throw new ExternalSystemException("Failed to run cmake --build: " + e.getMessage());
         }
-        finally {
-            myProcess = null;
+        if (exitCode == CMakeProcessRunner.CANCELLED_EXIT_CODE) {
+            throw new ExternalSystemException(CMakeLocalize.errorCmakeCancelled().get());
+        }
+        if (exitCode != 0) {
+            throw new ExternalSystemException("cmake --build exited with code " + exitCode);
         }
     }
 
     @Override
     public boolean cancelTask(ExternalSystemTaskId id, ExternalSystemTaskNotificationListener listener) throws ExternalSystemException {
-        Process process = myProcess;
-        if (process != null) {
-            process.destroyForcibly();
-            return true;
-        }
-        return false;
-    }
-
-    private static void notify(ExternalSystemTaskNotificationListener listener, ExternalSystemTaskId id, String message) {
-        listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message));
+        myRunner.cancel();
+        return true;
     }
 }

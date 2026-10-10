@@ -19,6 +19,10 @@ public interface CMakeSettingsListener extends ExternalSystemSettingsListener<CM
     }
 
     @Override
+    default void onProjectsLoaded(Collection<CMakeProjectSettings> settings) {
+    }
+
+    @Override
     default void onProjectsLinked(Collection<CMakeProjectSettings> settings) {
     }
 

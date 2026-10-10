@@ -8,19 +8,24 @@ import consulo.externalSystem.service.setting.AbstractExternalProjectSettingsCon
 import consulo.externalSystem.service.setting.ExternalSystemSettingsPlace;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.fileChooser.FileChooserTextBoxBuilder;
+import consulo.ui.ComboBox;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.util.LabeledBuilder;
+import consulo.ui.util.FormBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * @author VISTALL
  */
 public class CMakeProjectSettingsConfigurable extends AbstractExternalProjectSettingsConfigurable<CMakeProjectSettings> {
+    private static final List<String> BUILD_TYPES = List.of("Debug", "Release", "RelWithDebInfo", "MinSizeRel");
+
     private FileChooserTextBoxBuilder.@Nullable Controller myBuildDirectoryBox;
+    private @Nullable ComboBox<String> myBuildTypeBox;
 
     public CMakeProjectSettingsConfigurable(CMakeProjectSettings settings, ExternalSystemSettingsPlace place) {
         super(settings, place);
@@ -39,7 +44,14 @@ public class CMakeProjectSettingsConfigurable extends AbstractExternalProjectSet
 
         buildDirectoryBox.setValue(getBuildDirectoryOrDefault());
 
-        return LabeledBuilder.filled(CMakeLocalize.buildDirectoryLabel(), buildDirectoryBox);
+        ComboBox<String> buildTypeBox = ComboBox.create(BUILD_TYPES);
+        buildTypeBox.setValue(getSettings().getBuildTypeOrDefault());
+        myBuildTypeBox = buildTypeBox;
+
+        return FormBuilder.create()
+            .addLabeled(CMakeLocalize.buildDirectoryLabel(), buildDirectoryBox.getComponent())
+            .addLabeled(CMakeLocalize.buildTypeLabel(), buildTypeBox)
+            .build();
     }
 
     private String getBuildDirectoryOrDefault() {
@@ -63,7 +75,9 @@ public class CMakeProjectSettingsConfigurable extends AbstractExternalProjectSet
     @RequiredUIAccess
     protected boolean isExtraModified() {
         String current = myBuildDirectoryBox == null ? null : myBuildDirectoryBox.getValue().trim();
-        return !Objects.equals(current, getSettings().getBuildDirectory());
+        String buildType = myBuildTypeBox == null ? null : myBuildTypeBox.getValue();
+        return !Objects.equals(current, getSettings().getBuildDirectory())
+            || buildType != null && !buildType.equals(getSettings().getBuildTypeOrDefault());
     }
 
     @Override
@@ -79,5 +93,10 @@ public class CMakeProjectSettingsConfigurable extends AbstractExternalProjectSet
         }
 
         getSettings().setBuildDirectory(buildDirectory);
+
+        String buildType = myBuildTypeBox == null ? null : myBuildTypeBox.getValue();
+        if (buildType != null) {
+            getSettings().setBuildType(buildType);
+        }
     }
 }

@@ -132,3 +132,29 @@ debug.error.cmake.version:
     text: CMake 3.27 or later is required for script debugging (--debugger flag)
 debug.error.failed.start:
     text: "Failed to start cmake debugger: {0}"
+
+build.type.label:
+    text: "Build type:"
+
+run.configuration.type.name:
+    text: CMake Application
+run.configuration.type.description:
+    text: Run or debug an executable target of a CMake project
+run.configuration.target.label:
+    text: "Target:"
+run.configuration.target.not.specified:
+    text: Target is not specified
+run.configuration.target.not.executable:
+    text: "Target {0} is not an executable target"
+run.configuration.artifact.unknown:
+    text: "Executable of target {0} is unknown, reload the CMake project"
+
+before.run.build.target.name:
+    text: Build CMake target
+before.run.build.target.description:
+    text: "Build CMake target {0}"
+
+debug.error.pipe.timeout:
+    text: "CMake debugger did not open {0}"
+debug.error.exited:
+    text: "cmake exited with code {0} before the debugger connected"

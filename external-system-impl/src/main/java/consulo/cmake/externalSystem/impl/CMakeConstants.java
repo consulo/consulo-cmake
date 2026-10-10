@@ -11,4 +11,6 @@ public interface CMakeConstants {
     ProjectSystemId SYSTEM_ID = new ProjectSystemId("CMAKE", CMakeLocalize.cmakeSystemName(), CMakeIconGroup.cmake());
 
     String CMAKE_LISTS_TXT = "CMakeLists.txt";
+
+    String CMAKE_EXECUTABLE = "cmake";
 }

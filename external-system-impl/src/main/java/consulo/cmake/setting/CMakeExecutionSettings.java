@@ -15,10 +15,13 @@ public class CMakeExecutionSettings extends ExternalSystemExecutionSettings {
     private final String mySourceDirectory;
     @Nullable
     private final String myBuildDirectory;
+    @Nonnull
+    private final String myBuildType;
 
-    public CMakeExecutionSettings(@Nonnull String sourceDirectory, @Nullable String buildDirectory) {
+    public CMakeExecutionSettings(@Nonnull String sourceDirectory, @Nullable String buildDirectory, @Nonnull String buildType) {
         mySourceDirectory = sourceDirectory;
         myBuildDirectory = buildDirectory;
+        myBuildType = buildType;
     }
 
     @Nonnull
@@ -31,11 +34,17 @@ public class CMakeExecutionSettings extends ExternalSystemExecutionSettings {
         return myBuildDirectory;
     }
 
+    @Nonnull
+    public String getBuildType() {
+        return myBuildType;
+    }
+
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + mySourceDirectory.hashCode();
         result = 31 * result + (myBuildDirectory != null ? myBuildDirectory.hashCode() : 0);
+        result = 31 * result + myBuildType.hashCode();
         return result;
     }
 
@@ -45,6 +54,8 @@ public class CMakeExecutionSettings extends ExternalSystemExecutionSettings {
             return false;
         }
         CMakeExecutionSettings that = (CMakeExecutionSettings) o;
-        return mySourceDirectory.equals(that.mySourceDirectory) && Objects.equals(myBuildDirectory, that.myBuildDirectory);
+        return mySourceDirectory.equals(that.mySourceDirectory)
+            && Objects.equals(myBuildDirectory, that.myBuildDirectory)
+            && myBuildType.equals(that.myBuildType);
     }
 }

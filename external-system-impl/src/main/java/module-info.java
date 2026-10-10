@@ -6,11 +6,13 @@ module consulo.cmake.external.system.impl {
     requires consulo.module.creation.api;
     requires consulo.external.system.api;
     requires consulo.execution.debugger.dap;
+    requires consulo.nativeDev.debugger.api;
 
     requires com.google.gson;
     requires org.slf4j;
 
     exports consulo.cmake.externalSystem.impl;
+    exports consulo.cmake.externalSystem.model;
     exports consulo.cmake.setting;
     exports consulo.cmake.importProvider;
     exports consulo.cmake.debug;
