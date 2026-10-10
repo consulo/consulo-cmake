@@ -7,6 +7,8 @@ module consulo.cmake.external.system.impl {
     requires consulo.external.system.api;
     requires consulo.execution.debugger.dap;
     requires consulo.nativeDev.debugger.api;
+    requires consulo.nativeDev.profiler.api;
+    requires consulo.compiler.api;
 
     requires com.google.gson;
     requires org.slf4j;

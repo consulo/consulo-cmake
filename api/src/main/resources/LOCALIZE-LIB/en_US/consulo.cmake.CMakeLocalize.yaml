@@ -149,10 +149,12 @@ run.configuration.target.not.executable:
 run.configuration.artifact.unknown:
     text: "Executable of target {0} is unknown, reload the CMake project"
 
-before.run.build.target.name:
-    text: Build CMake target
-before.run.build.target.description:
-    text: "Build CMake target {0}"
+compiler.name:
+    text: CMake
+compiler.cannot.run:
+    text: "Cannot run {0}: {1}"
+compiler.exit.code:
+    text: "{0} exited with code {1}"
 
 debug.error.pipe.timeout:
     text: "CMake debugger did not open {0}"

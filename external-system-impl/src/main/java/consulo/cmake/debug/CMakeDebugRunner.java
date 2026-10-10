@@ -17,10 +17,9 @@ package consulo.cmake.debug;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.cmake.externalSystem.impl.CMakeConstants;
+import consulo.cmake.service.process.CMakeCommand;
+import consulo.cmake.service.project.CMakeBuildInfo;
 import consulo.cmake.service.project.CMakeFileApi;
-import consulo.cmake.service.project.CMakeProjectPaths;
-import consulo.cmake.setting.CMakeProjectSettings;
-import consulo.cmake.setting.CMakeSettings;
 import consulo.document.FileDocumentManager;
 import consulo.execution.configuration.RunProfile;
 import consulo.execution.configuration.RunProfileState;
@@ -41,7 +40,6 @@ import consulo.process.cmd.GeneralCommandLine;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -76,15 +74,10 @@ public class CMakeDebugRunner extends DefaultProgramRunner {
         throws ExecutionException {
         Project project = env.getProject();
         ExternalSystemRunConfiguration config = (ExternalSystemRunConfiguration) env.getRunProfile();
-        String projectPath = config.getSettings().getExternalProjectPath();
-        CMakeProjectSettings projectSettings = CMakeSettings.getInstance(project).getLinkedProjectSettings(projectPath);
-
-        File sourceDir = CMakeProjectPaths.getSourceDir(projectPath);
-        File buildDir = CMakeProjectPaths.getBuildDir(sourceDir, projectSettings != null ? projectSettings.getBuildDirectory() : null);
-        String buildType = projectSettings != null ? projectSettings.getBuildTypeOrDefault() : CMakeProjectSettings.DEFAULT_BUILD_TYPE;
+        CMakeBuildInfo buildInfo = CMakeBuildInfo.of(project, config.getSettings().getExternalProjectPath());
 
         try {
-            CMakeFileApi.writeQueryFiles(buildDir);
+            CMakeFileApi.writeQueryFiles(buildInfo.buildDirectory());
         }
         catch (IOException e) {
             throw new ExecutionException(e.getMessage(), e);
@@ -93,13 +86,8 @@ public class CMakeDebugRunner extends DefaultProgramRunner {
         FileDocumentManager.getInstance().saveAllDocuments();
 
         String pipeName = CMakeDebuggerPipe.createName();
-        GeneralCommandLine commandLine = new GeneralCommandLine(CMakeConstants.CMAKE_EXECUTABLE)
-            .withParameters("--debugger",
-                "--debugger-pipe", pipeName,
-                "-S", sourceDir.getAbsolutePath(),
-                "-B", buildDir.getAbsolutePath(),
-                "-DCMAKE_BUILD_TYPE=" + buildType)
-            .withWorkDirectory(sourceDir.getAbsolutePath());
+        GeneralCommandLine commandLine = CMakeCommand.configure(buildInfo.sourceDirectory(), buildInfo.buildDirectory(), buildInfo.buildType())
+            .withParameters("--debugger", "--debugger-pipe", pipeName);
 
         ProcessHandler cmakeProcess = project.getApplication().getInstance(ProcessHandlerBuilderFactory.class)
             .newBuilder(commandLine)

@@ -49,11 +49,8 @@ public record CMakeTarget(String name, String type, @Nullable Path artifact, Pat
 
     @RequiredReadAction
     public static List<CMakeTarget> list(Module module) {
-        if (module.isDisposed()) {
-            return List.of();
-        }
-        ExternalSystemModuleExtension<?> extension = ModuleRootManager.getInstance(module).getExtension(EXTENSION_ID);
-        if (extension == null || !CMakeConstants.SYSTEM_ID.equals(extension.getProjectSystemId())) {
+        ExternalSystemModuleExtension<?> extension = findExtension(module);
+        if (extension == null) {
             return List.of();
         }
         String names = extension.getOption(OPTION_TARGETS);
@@ -109,5 +106,22 @@ public record CMakeTarget(String name, String type, @Nullable Path artifact, Pat
             extension.setOption(OPTION_BUILD_DIRECTORY, target.buildDirectory().toString());
         }
         extension.setOption(OPTION_TARGETS, String.join(SEPARATOR, names));
+    }
+
+    @RequiredReadAction
+    public static boolean isCMakeModule(Module module) {
+        return findExtension(module) != null;
+    }
+
+    @Nullable
+    private static ExternalSystemModuleExtension<?> findExtension(Module module) {
+        if (module.isDisposed()) {
+            return null;
+        }
+        ExternalSystemModuleExtension<?> extension = ModuleRootManager.getInstance(module).getExtension(EXTENSION_ID);
+        if (extension == null || !CMakeConstants.SYSTEM_ID.equals(extension.getProjectSystemId())) {
+            return null;
+        }
+        return extension;
     }
 }

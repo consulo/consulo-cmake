@@ -1,8 +1,9 @@
 package consulo.cmake.service.task;
 
-import consulo.cmake.externalSystem.impl.CMakeConstants;
 import consulo.cmake.localize.CMakeLocalize;
+import consulo.cmake.service.process.CMakeCommand;
 import consulo.cmake.service.process.CMakeProcessRunner;
+import consulo.cmake.service.project.CMakeProjectPaths;
 import consulo.cmake.setting.CMakeExecutionSettings;
 import consulo.cmake.setting.CMakeProjectSettings;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
@@ -31,31 +32,17 @@ public class CMakeTaskManager implements ExternalSystemTaskManager<CMakeExecutio
                              List<String> scriptParameters,
                              @Nullable String debuggerSetup,
                              ExternalSystemTaskNotificationListener listener) throws ExternalSystemException {
-        String buildDir = settings != null ? settings.getBuildDirectory() : null;
-        if (buildDir == null || buildDir.isBlank()) {
-            File sourceDir = new File(projectPath);
-            if (sourceDir.isFile()) sourceDir = sourceDir.getParentFile();
-            buildDir = sourceDir.getAbsolutePath() + File.separator + "build";
-        }
+        File buildDir = CMakeProjectPaths.getBuildDir(CMakeProjectPaths.getSourceDir(projectPath),
+            settings != null ? settings.getBuildDirectory() : null);
         String buildType = settings != null ? settings.getBuildType() : CMakeProjectSettings.DEFAULT_BUILD_TYPE;
 
         for (String taskName : taskNames) {
-            runCMakeBuild(id, taskName, buildDir, buildType, listener);
+            runCMakeBuild(id, CMakeCommand.build(buildDir, buildType, CMakeCommand.targetOfTask(taskName), false), listener);
         }
     }
 
-    private void runCMakeBuild(ExternalSystemTaskId id, String taskName, String buildDir, String buildType,
+    private void runCMakeBuild(ExternalSystemTaskId id, GeneralCommandLine commandLine,
                                ExternalSystemTaskNotificationListener listener) throws ExternalSystemException {
-        GeneralCommandLine commandLine = new GeneralCommandLine(CMakeConstants.CMAKE_EXECUTABLE)
-            .withParameters("--build", buildDir, "--config", buildType);
-
-        if ("clean".equals(taskName)) {
-            commandLine.addParameters("--target", "clean");
-        }
-        else if (!"build".equals(taskName)) {
-            commandLine.addParameters("--target", taskName);
-        }
-
         listener.onTaskOutput(id, "Running: " + commandLine.getCommandLineString() + "\n", true);
 
         int exitCode;

@@ -27,6 +27,9 @@ import consulo.process.event.ProcessListener;
 import consulo.util.dataholder.Key;
 import jakarta.annotation.Nullable;
 
+import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
+
 /**
  * @author VISTALL
  * @since 2026-10-10
@@ -43,7 +46,13 @@ public final class CMakeProcessRunner {
     public int run(GeneralCommandLine commandLine,
                    ExternalSystemTaskId id,
                    ExternalSystemTaskNotificationListener listener) throws ExecutionException {
-        if (myCancelled) {
+        return run(commandLine, (text, stdout) -> listener.onTaskOutput(id, text, stdout), () -> false);
+    }
+
+    public int run(GeneralCommandLine commandLine,
+                   BiConsumer<String, Boolean> output,
+                   BooleanSupplier cancelled) throws ExecutionException {
+        if (myCancelled || cancelled.getAsBoolean()) {
             return CANCELLED_EXIT_CODE;
         }
 
@@ -52,7 +61,7 @@ public final class CMakeProcessRunner {
             @Override
             public void onTextAvailable(ProcessEvent event, Key outputType) {
                 if (outputType != ProcessOutputType.SYSTEM) {
-                    listener.onTaskOutput(id, event.getText(), outputType != ProcessOutputType.STDERR);
+                    output.accept(event.getText(), outputType != ProcessOutputType.STDERR);
                 }
             }
         });
@@ -61,7 +70,7 @@ public final class CMakeProcessRunner {
         try {
             handler.startNotify();
             while (!handler.waitFor(WAIT_INTERVAL_MS)) {
-                if (myCancelled) {
+                if (myCancelled || cancelled.getAsBoolean()) {
                     handler.destroyProcess();
                     handler.waitFor();
                     return CANCELLED_EXIT_CODE;

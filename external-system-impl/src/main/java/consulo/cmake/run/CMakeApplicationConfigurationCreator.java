@@ -20,13 +20,17 @@ import consulo.cmake.module.CMakeTarget;
 import consulo.execution.RunManager;
 import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.configuration.ConfigurationFactory;
+import consulo.execution.configuration.RunConfiguration;
 import consulo.module.Module;
 import consulo.module.ModuleManager;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
+import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author VISTALL
@@ -57,15 +61,18 @@ public final class CMakeApplicationConfigurationCreator {
 
         CMakeApplicationConfigurationType type = CMakeApplicationConfigurationType.getInstance(project.getApplication());
         RunManager runManager = RunManager.getInstance(project);
-        if (!runManager.getConfigurationsList(type).isEmpty()) {
-            return;
+        Set<String> existing = new HashSet<>();
+        for (RunConfiguration configuration : runManager.getConfigurationsList(type)) {
+            if (configuration instanceof CMakeApplicationConfiguration cmake) {
+                existing.add(key(cmake.getConfigurationModule().getModuleName(), cmake.getTargetName()));
+            }
         }
 
         ConfigurationFactory factory = type.getConfigurationFactories()[0];
         RunnerAndConfigurationSettings first = null;
         for (CMakeTargetReference reference : targets) {
             Module module = reference.module();
-            if (module.isDisposed()) {
+            if (module.isDisposed() || !existing.add(key(module.getName(), reference.target().name()))) {
                 continue;
             }
             RunnerAndConfigurationSettings settings = runManager.createRunConfiguration(reference.target().name(), factory);
@@ -81,5 +88,9 @@ public final class CMakeApplicationConfigurationCreator {
         if (first != null && runManager.getSelectedConfiguration() == null) {
             runManager.setSelectedConfiguration(first);
         }
+    }
+
+    private static String key(String moduleName, @Nullable String targetName) {
+        return moduleName + "/" + targetName;
     }
 }

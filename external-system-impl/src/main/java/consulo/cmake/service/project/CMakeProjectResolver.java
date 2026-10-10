@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import consulo.cmake.externalSystem.impl.CMakeConstants;
 import consulo.cmake.externalSystem.model.CMakeCompileData;
 import consulo.cmake.localize.CMakeLocalize;
+import consulo.cmake.service.process.CMakeCommand;
 import consulo.cmake.service.process.CMakeProcessRunner;
 import consulo.cmake.setting.CMakeExecutionSettings;
 import consulo.cmake.setting.CMakeProjectSettings;
@@ -116,9 +117,7 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
             throw new ExternalSystemException(CMakeLocalize.errorCannotCreateBuildDir(e.getMessage()).get());
         }
 
-        GeneralCommandLine commandLine = new GeneralCommandLine(CMakeConstants.CMAKE_EXECUTABLE)
-            .withParameters("-S", sourceDir.getAbsolutePath(), "-B", buildDir.getAbsolutePath(), "-DCMAKE_BUILD_TYPE=" + buildType)
-            .withWorkDirectory(sourceDir.getAbsolutePath());
+        GeneralCommandLine commandLine = CMakeCommand.configure(sourceDir, buildDir, buildType);
 
         int exitCode;
         try {

@@ -33,6 +33,7 @@ import consulo.module.Module;
 import consulo.nativeDev.debugger.driver.NativeDebugTarget;
 import consulo.nativeDev.debugger.run.NativeProgramRunConfiguration;
 import consulo.nativeDev.debugger.run.NativeProgramSettings;
+import consulo.nativeDev.profiler.NativeProfilableRunProfile;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilderFactory;
@@ -50,7 +51,7 @@ import java.util.List;
  * @author VISTALL
  * @since 2026-10-10
  */
-public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunConfigurationModule> implements NativeProgramRunConfiguration {
+public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunConfigurationModule> implements NativeProgramRunConfiguration, NativeProfilableRunProfile {
     private static final String ATTR_TARGET = "target";
 
     private NativeProgramSettings myProgramSettings = new NativeProgramSettings();
@@ -111,11 +112,6 @@ public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunC
     public String getLinkedProjectPath() {
         Module module = getConfigurationModule().getModule();
         return module == null ? null : ExternalSystemApiUtil.getExternalProjectPath(module);
-    }
-
-    @Override
-    public boolean isCompileBeforeLaunchAddedByDefault() {
-        return false;
     }
 
     @Override
