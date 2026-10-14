@@ -59,7 +59,7 @@ public class CMakeApplicationConfigurationLayout extends NativeProgramParameters
         boolean showModule = targets.stream().map(CMakeTargetReference::module).distinct().count() > 1;
 
         ComboBox<CMakeTargetReference> targetBox = ComboBox.create(targets);
-        targetBox.setRender((presentation, item) -> {
+        targetBox.setRenderer((presentation, item) -> {
             CMakeTargetReference reference = item.getValue();
             if (reference != null) {
                 presentation.withIcon(CMakeIconGroup.cmake());
@@ -84,7 +84,9 @@ public class CMakeApplicationConfigurationLayout extends NativeProgramParameters
         }
         Module module = configuration.getConfigurationModule().getModule();
         String targetName = configuration.getTargetName();
-        targetBox.setValueByCondition(reference -> reference.module() == module && Objects.equals(reference.target().name(), targetName));
+        targetBox.setValueByCondition(
+            reference -> reference.module() == module && Objects.equals(reference.target().name(), targetName)
+        );
     }
 
     @RequiredUIAccess
