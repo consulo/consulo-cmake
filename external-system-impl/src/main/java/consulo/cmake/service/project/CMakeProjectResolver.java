@@ -14,6 +14,10 @@ import consulo.cmake.setting.CMakeProjectSettings;
 import consulo.externalSystem.model.DataNode;
 import consulo.externalSystem.model.ProjectKeys;
 import consulo.externalSystem.model.project.ContentRootData;
+import consulo.externalSystem.model.project.LibraryData;
+import consulo.externalSystem.model.project.LibraryDependencyData;
+import consulo.externalSystem.model.project.LibraryLevel;
+import consulo.externalSystem.model.project.LibraryPathType;
 import consulo.externalSystem.model.project.ModuleData;
 import consulo.externalSystem.model.task.TaskData;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
@@ -23,6 +27,7 @@ import consulo.externalSystem.rt.model.ExternalSystemException;
 import consulo.externalSystem.rt.model.ExternalSystemSourceType;
 import consulo.externalSystem.service.project.ExternalSystemProjectResolver;
 import consulo.externalSystem.service.project.ProjectData;
+import consulo.externalSystem.util.ExternalSystemApiUtil;
 import consulo.process.ExecutionException;
 import consulo.process.cmd.GeneralCommandLine;
 
@@ -206,7 +211,40 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         }
         rootNode.createChild(ProjectKeys.CONTENT_ROOT, contentRoot);
 
+        addHeaderSearchPathsLibrary(projectNode, rootNode, projectName, sourcePath);
+
         return projectNode;
+    }
+
+    /**
+     * The include directories outside the project - the compiler's own, where the standard library headers are, and
+     * those of the dependencies - become the sources of a library of the module, so they are indexed and listed under
+     * the external libraries.
+     */
+    private static void addHeaderSearchPathsLibrary(DataNode<ProjectData> projectNode, DataNode<ModuleData> rootNode,
+                                                    String projectName, String sourcePath) {
+        LibraryData library = new LibraryData(CMakeConstants.SYSTEM_ID, "Header Search Paths (" + projectName + ")");
+        boolean empty = true;
+        for (DataNode<CMakeCompileData> node : ExternalSystemApiUtil.findAll(rootNode, CMakeCompileData.KEY)) {
+            CMakeCompileData compileData = node.getData();
+            List<String> includePaths = new ArrayList<>(compileData.getIncludePaths());
+            includePaths.addAll(compileData.getSystemIncludePaths());
+            for (String includePath : includePaths) {
+                if (!FileUtil.isAncestor(sourcePath, includePath, false)) {
+                    // headers are what a C/C++ library is compiled against; the project view lists only these roots
+                    library.addPath(LibraryPathType.BINARY, includePath);
+                    library.addPath(LibraryPathType.SOURCE, includePath);
+                    empty = false;
+                }
+            }
+        }
+        if (empty) {
+            return;
+        }
+
+        // a project library is imported before the dependencies on it, and its roots are updated on every refresh
+        projectNode.createChild(ProjectKeys.LIBRARY, library);
+        rootNode.createChild(ProjectKeys.LIBRARY_DEPENDENCY, new LibraryDependencyData(rootNode.getData(), library, LibraryLevel.PROJECT));
     }
 
     private static DataNode<ModuleData> createRootModule(DataNode<ProjectData> projectNode, String projectName,
