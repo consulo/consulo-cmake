@@ -25,9 +25,13 @@ public final class CMakeFileApi {
 
     public static final String CODEMODEL_KIND = "codemodel";
     public static final String CMAKE_FILES_KIND = "cmakeFiles";
+    public static final String TOOLCHAINS_KIND = "toolchains";
 
     private static final String API_DIR = ".cmake/api/v1";
-    private static final String[] QUERIES = {"codemodel-v2", "cmakeFiles-v1"};
+    /**
+     * toolchains-v1 (CMake 3.20+) carries the compiler's own include directories - where the standard headers are.
+     */
+    private static final String[] QUERIES = {"codemodel-v2", "cmakeFiles-v1", "toolchains-v1"};
 
     private CMakeFileApi() {
     }

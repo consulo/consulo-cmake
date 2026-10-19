@@ -138,7 +138,7 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
     // CMake File API reply parsing
     // -------------------------------------------------------------------------
 
-    private DataNode<ProjectData> parseFileApiReply(File sourceDir, File buildDir, File replyDir, String linkedProjectPath, String buildType)
+    private static DataNode<ProjectData> parseFileApiReply(File sourceDir, File buildDir, File replyDir, String linkedProjectPath, String buildType)
         throws ExternalSystemException {
         Gson gson = new Gson();
 
@@ -155,6 +155,9 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         }
 
         JsonObject codemodel = readJson(gson, new File(replyDir, codemodelFile));
+
+        String toolchainsFile = CMakeFileApi.findObjectJsonFile(index, CMakeFileApi.TOOLCHAINS_KIND);
+        CMakeToolchains toolchains = toolchainsFile == null ? CMakeToolchains.EMPTY : CMakeToolchains.read(readJson(gson, new File(replyDir, toolchainsFile)));
 
         String projectName = null;
         JsonArray configurations = codemodel.getAsJsonArray("configurations");
@@ -189,7 +192,7 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
                     String targetJsonFile = getStr(targetEl.getAsJsonObject(), "jsonFile");
                     if (targetJsonFile == null) continue;
                     parseTarget(gson, new File(replyDir, targetJsonFile), sourcePath, buildDir.getAbsolutePath(),
-                        projectNode, rootNode, linkedProjectPath, sourceRoots);
+                        projectNode, rootNode, linkedProjectPath, sourceRoots, toolchains);
                 }
             }
         }
@@ -212,9 +215,9 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         return projectNode.createChild(ProjectKeys.MODULE, rootData);
     }
 
-    private void parseTarget(Gson gson, File targetFile, String sourcePath, String buildPath,
-                             DataNode<ProjectData> projectNode, DataNode<ModuleData> rootNode, String linkedProjectPath,
-                             Set<String> sourceRoots)
+    private static void parseTarget(Gson gson, File targetFile, String sourcePath, String buildPath,
+                                    DataNode<ProjectData> projectNode, DataNode<ModuleData> rootNode, String linkedProjectPath,
+                                    Set<String> sourceRoots, CMakeToolchains toolchains)
         throws ExternalSystemException {
         if (!targetFile.exists()) return;
 
@@ -243,61 +246,29 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
         JsonArray compileGroups = target.getAsJsonArray("compileGroups");
         if (compileGroups != null) {
             for (JsonElement cgEl : compileGroups) {
-                JsonObject compileGroup = cgEl.getAsJsonObject();
-                List<String> includePaths = new ArrayList<>();
-                List<String> systemIncludePaths = new ArrayList<>();
-                JsonArray includes = compileGroup.getAsJsonArray("includes");
-                if (includes != null) {
-                    for (JsonElement incEl : includes) {
-                        JsonObject include = incEl.getAsJsonObject();
-                        String incPath = getStr(include, "path");
-                        if (incPath != null) {
-                            addSourceRoot(sourceRoots, sourcePath, new File(incPath));
-                            JsonElement isSystem = include.get("isSystem");
-                            if (isSystem != null && isSystem.getAsBoolean()) {
-                                systemIncludePaths.add(incPath);
-                            }
-                            else {
-                                includePaths.add(incPath);
-                            }
-                        }
-                    }
+                CMakeCompileGroup group = CMakeCompileGroup.read(cgEl.getAsJsonObject(), toolchains);
+                if (group == null) {
+                    continue;
                 }
 
-                String language = getStr(compileGroup, "language");
-                if (language != null) {
-                    JsonObject languageStandard = compileGroup.getAsJsonObject("languageStandard");
-                    String standard = languageStandard == null ? null : getStr(languageStandard, "standard");
-                    rootNode.createChild(CMakeCompileData.KEY,
-                        new CMakeCompileData(name, language, includePaths, systemIncludePaths, readDefines(compileGroup), standard));
+                for (String includePath : group.includePaths()) {
+                    addSourceRoot(sourceRoots, sourcePath, new File(includePath));
                 }
+                for (String includePath : group.systemIncludePaths()) {
+                    addSourceRoot(sourceRoots, sourcePath, new File(includePath));
+                }
+
+                rootNode.createChild(CMakeCompileData.KEY, new CMakeCompileData(name,
+                    group.language(),
+                    group.includePaths(),
+                    group.systemIncludePaths(),
+                    group.defines(),
+                    group.standard()));
             }
         }
 
         projectNode.createChild(ProjectKeys.TASK,
             new TaskData(CMakeConstants.SYSTEM_ID, name, linkedProjectPath, CMakeLocalize.taskBuildTarget(name).get()));
-    }
-
-    private static Map<String, String> readDefines(JsonObject compileGroup) {
-        Map<String, String> defines = new LinkedHashMap<>();
-        JsonArray array = compileGroup.getAsJsonArray("defines");
-        if (array == null) {
-            return defines;
-        }
-        for (JsonElement element : array) {
-            String define = getStr(element.getAsJsonObject(), "define");
-            if (define == null || define.isEmpty()) {
-                continue;
-            }
-            int eq = define.indexOf('=');
-            if (eq < 0) {
-                defines.put(define, "");
-            }
-            else {
-                defines.put(define.substring(0, eq), define.substring(eq + 1));
-            }
-        }
-        return defines;
     }
 
     private static void addSourceRoot(Set<String> sourceRoots, String sourcePath, File directory) {
