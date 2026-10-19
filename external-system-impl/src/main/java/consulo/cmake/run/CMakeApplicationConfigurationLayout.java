@@ -84,7 +84,9 @@ public class CMakeApplicationConfigurationLayout extends NativeProgramParameters
         }
         Module module = configuration.getConfigurationModule().getModule();
         String targetName = configuration.getTargetName();
-        targetBox.setValueByCondition(reference -> reference.module() == module && Objects.equals(reference.target().name(), targetName));
+        targetBox.setValueByCondition(
+            reference -> reference.module() == module && Objects.equals(reference.target().name(), targetName)
+        );
     }
 
     @RequiredUIAccess
