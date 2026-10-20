@@ -20,10 +20,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The compilers CMake configured, from the {@code toolchains} object of its file API: per language, which compiler,
@@ -36,10 +42,22 @@ import java.util.Map;
 final class CMakeToolchains {
     static final CMakeToolchains EMPTY = new CMakeToolchains(Map.of());
 
-    private record Toolchain(@Nullable String compilerId, List<String> implicitIncludeDirectories) {
+    /**
+     * @param compilerTarget the target triple CMake reports - only for a compiler told its target, a cross compiling Clang
+     */
+    private record Toolchain(@Nullable String compilerId,
+                             @Nullable String compilerPath,
+                             @Nullable String compilerTarget,
+                             List<String> implicitIncludeDirectories) {
     }
 
+    /**
+     * Compilers which report the target they compile for with {@code -dumpmachine}.
+     */
+    private static final Set<String> DUMP_MACHINE_COMPILERS = Set.of("GNU", "Clang", "AppleClang");
+
     private final Map<String, Toolchain> myToolchains;
+    private final Map<String, Optional<String>> myAskedTargets = new ConcurrentHashMap<>();
 
     private CMakeToolchains(Map<String, Toolchain> toolchains) {
         myToolchains = toolchains;
@@ -68,7 +86,10 @@ final class CMakeToolchains {
                     includeDirectories.add(directory.getAsString());
                 }
             }
-            result.put(language, new Toolchain(CMakeFileApi.getString(compiler, "id"), List.copyOf(includeDirectories)));
+            result.put(language, new Toolchain(CMakeFileApi.getString(compiler, "id"),
+                CMakeFileApi.getString(compiler, "path"),
+                CMakeFileApi.getString(compiler, "target"),
+                List.copyOf(includeDirectories)));
         }
         return new CMakeToolchains(result);
     }
@@ -79,6 +100,45 @@ final class CMakeToolchains {
     List<String> getImplicitIncludeDirectories(String language) {
         Toolchain toolchain = myToolchains.get(language);
         return toolchain == null ? List.of() : toolchain.implicitIncludeDirectories();
+    }
+
+    /**
+     * The target triple the compiler of {@code language} compiles for - {@code x86_64-pc-linux-gnu}, {@code arm-none-eabi}:
+     * the one CMake reports, else the one GCC or Clang answers to {@code -dumpmachine}; {@code null} when neither knows.
+     */
+    @Nullable
+    String getTarget(String language) {
+        Toolchain toolchain = myToolchains.get(language);
+        if (toolchain == null) {
+            return null;
+        }
+        if (toolchain.compilerTarget() != null) {
+            return toolchain.compilerTarget();
+        }
+        String path = toolchain.compilerPath();
+        if (path == null || !DUMP_MACHINE_COMPILERS.contains(toolchain.compilerId())) {
+            return null;
+        }
+        return myAskedTargets.computeIfAbsent(path, CMakeToolchains::dumpMachine).orElse(null);
+    }
+
+    private static Optional<String> dumpMachine(String compilerPath) {
+        try {
+            Process process = new ProcessBuilder(compilerPath, "-dumpmachine").redirectErrorStream(true).start();
+            String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            if (!process.waitFor(10, TimeUnit.SECONDS) || process.exitValue() != 0 || output.isEmpty() || output.contains(" ")) {
+                process.destroy();
+                return Optional.empty();
+            }
+            return Optional.of(output);
+        }
+        catch (IOException e) {
+            return Optional.empty();
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Optional.empty();
+        }
     }
 
     /**

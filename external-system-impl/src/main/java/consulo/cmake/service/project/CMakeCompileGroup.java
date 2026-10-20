@@ -32,7 +32,9 @@ import java.util.Map;
  * Read from the group's structured entries, its raw command fragments, and the implicit include directories of the
  * group's compiler.
  *
- * @param standard the standard in CMake's notation - {@code 11}, {@code 17} - {@code null} when not set
+ * @param standard       the standard in CMake's notation - {@code 11}, {@code 17} - {@code null} when not set
+ * @param compilerTarget the target triple the sources compile for - {@code x86_64-pc-linux-gnu} - {@code null} when
+ *                       unknown
  * @author VISTALL
  * @since 2026-10-19
  */
@@ -40,7 +42,8 @@ record CMakeCompileGroup(String language,
                          List<String> includePaths,
                          List<String> systemIncludePaths,
                          Map<String, String> defines,
-                         @Nullable String standard) {
+                         @Nullable String standard,
+                         @Nullable String compilerTarget) {
     /**
      * Reads a compile group of a target object of the codemodel; {@code null} for a group without a language.
      */
@@ -92,7 +95,10 @@ record CMakeCompileGroup(String language,
             standard = flags.standard();
         }
 
-        return new CMakeCompileGroup(language, includePaths, systemIncludePaths, defines, standard);
+        // a target given on the command line wins over the compiler's own
+        String compilerTarget = flags.target() != null ? flags.target() : toolchains.getTarget(language);
+
+        return new CMakeCompileGroup(language, includePaths, systemIncludePaths, defines, standard, compilerTarget);
     }
 
     private static List<String> readCommandFragments(JsonObject compileGroup) {

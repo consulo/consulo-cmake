@@ -91,6 +91,14 @@ public class CMakeCompileFlagsTest {
     }
 
     @Test
+    public void testTarget() {
+        assertEquals("aarch64-linux-gnu", CMakeCompileFlags.parse(List.of("--target=aarch64-linux-gnu -O2"), false).target());
+        assertEquals("arm-none-eabi", CMakeCompileFlags.parse(List.of("-target arm-none-eabi"), false).target());
+        assertEquals("riscv64-unknown-elf", CMakeCompileFlags.parse(List.of("--target", "riscv64-unknown-elf"), false).target());
+        assertNull(CMakeCompileFlags.parse(List.of("-O2 -Wall"), false).target());
+    }
+
+    @Test
     public void testStandards() {
         assertEquals("90", CMakeCompileFlags.parseStandard("c89"));
         assertEquals("99", CMakeCompileFlags.parseStandard("gnu99"));

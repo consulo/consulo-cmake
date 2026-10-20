@@ -97,6 +97,9 @@ public class CMakeFileApiReplyTest {
         assertEquals("1", group.defines().get("_DEFAULT_SOURCE"));
         assertEquals("2", group.defines().get("STRUCTURED"));
         assertTrue(group.includePaths().contains(source.resolve("include").toString()), group.includePaths().toString());
+        // a native build compiles for the machine it runs on: the compiler answers -dumpmachine
+        assertNotNull(group.compilerTarget(), "no compiler target");
+        assertTrue(group.compilerTarget().contains("-"), group.compilerTarget());
         // the compiler's own directories, where the standard headers are
         assertTrue(group.systemIncludePaths().stream().anyMatch(directory -> Files.exists(Path.of(directory, "stdio.h"))),
             group.systemIncludePaths().toString());

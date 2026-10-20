@@ -46,6 +46,8 @@ public class CMakeCompileData extends AbstractExternalEntityData {
     private final Map<String, String> myDefines;
     @Nullable
     private final String myStandard;
+    @Nullable
+    private final String myCompilerTarget;
 
     public CMakeCompileData(String targetName,
                             String language,
@@ -53,6 +55,20 @@ public class CMakeCompileData extends AbstractExternalEntityData {
                             List<String> systemIncludePaths,
                             Map<String, String> defines,
                             @Nullable String standard) {
+        this(targetName, language, includePaths, systemIncludePaths, defines, standard, null);
+    }
+
+    /**
+     * @param compilerTarget the target triple the sources compile for - {@code x86_64-pc-linux-gnu},
+     *                       {@code arm-none-eabi} - {@code null} when unknown
+     */
+    public CMakeCompileData(String targetName,
+                            String language,
+                            List<String> includePaths,
+                            List<String> systemIncludePaths,
+                            Map<String, String> defines,
+                            @Nullable String standard,
+                            @Nullable String compilerTarget) {
         super(CMakeConstants.SYSTEM_ID);
         myTargetName = targetName;
         myLanguage = language;
@@ -60,6 +76,7 @@ public class CMakeCompileData extends AbstractExternalEntityData {
         mySystemIncludePaths = new ArrayList<>(systemIncludePaths);
         myDefines = new LinkedHashMap<>(defines);
         myStandard = standard;
+        myCompilerTarget = compilerTarget;
     }
 
     public String getTargetName() {
@@ -85,5 +102,14 @@ public class CMakeCompileData extends AbstractExternalEntityData {
     @Nullable
     public String getStandard() {
         return myStandard;
+    }
+
+    /**
+     * The target triple the sources compile for - {@code x86_64-pc-linux-gnu}, {@code arm-none-eabi} - not to be confused
+     * with the CMake {@linkplain #getTargetName() target}; {@code null} when unknown.
+     */
+    @Nullable
+    public String getCompilerTarget() {
+        return myCompilerTarget;
     }
 }

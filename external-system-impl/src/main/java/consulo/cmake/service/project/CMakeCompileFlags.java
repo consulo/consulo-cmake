@@ -35,13 +35,16 @@ import java.util.Set;
  *                      same name wins
  * @param standard      the standard in CMake's notation - {@code 11}, {@code 17}, {@code 23} - {@code null} when none
  *                      is given
+ * @param target        the target triple of a cross compiling Clang - {@code --target=aarch64-linux-gnu} - {@code null}
+ *                      when none is given
  * @author VISTALL
  * @since 2026-10-19
  */
 record CMakeCompileFlags(List<String> includePaths,
                          List<String> systemIncludePaths,
                          Map<String, @Nullable String> defineChanges,
-                         @Nullable String standard) {
+                         @Nullable String standard,
+                         @Nullable String target) {
     /**
      * Options whose value is the next argument and must not be read as an option itself.
      */
@@ -59,10 +62,21 @@ record CMakeCompileFlags(List<String> includePaths,
         List<String> systemIncludePaths = new ArrayList<>();
         Map<String, @Nullable String> defineChanges = new LinkedHashMap<>();
         String standard = null;
+        String target = null;
 
         for (int i = 0; i < arguments.size(); i++) {
             String argument = arguments.get(i);
             String next = i + 1 < arguments.size() ? arguments.get(i + 1) : null;
+
+            if (argument.startsWith("--target=")) {
+                target = argument.substring("--target=".length());
+                continue;
+            }
+            if ((argument.equals("-target") || argument.equals("--target")) && next != null) {
+                target = next;
+                i++;
+                continue;
+            }
 
             if (OPTIONS_WITH_ARGUMENT.contains(argument)) {
                 i++;
@@ -108,7 +122,7 @@ record CMakeCompileFlags(List<String> includePaths,
                 }
             }
         }
-        return new CMakeCompileFlags(includePaths, systemIncludePaths, defineChanges, standard);
+        return new CMakeCompileFlags(includePaths, systemIncludePaths, defineChanges, standard, target);
     }
 
     /**

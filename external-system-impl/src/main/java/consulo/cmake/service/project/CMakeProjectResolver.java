@@ -301,7 +301,8 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
                     group.includePaths(),
                     group.systemIncludePaths(),
                     group.defines(),
-                    group.standard()));
+                    group.standard(),
+                    group.compilerTarget()));
             }
         }
 
