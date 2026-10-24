@@ -21,4 +21,5 @@ module consulo.cmake.external.system.impl {
     exports consulo.cmake.debug.breakpoint;
 
     opens consulo.cmake.setting to consulo.util.xml.serializer;
+    opens consulo.cmake.run to consulo.util.xml.serializer, consulo.execution.api;
 }

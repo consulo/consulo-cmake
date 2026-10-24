@@ -65,7 +65,7 @@ public class CMakeDebugRunner extends DefaultProgramRunner {
         if (!(profile instanceof ExternalSystemRunConfiguration config)) {
             return false;
         }
-        return CMakeConstants.SYSTEM_ID.getId().equals(config.getSettings().getExternalSystemIdString());
+        return CMakeConstants.SYSTEM_ID.getId().equals(config.getSettingsCopy().getExternalSystemIdString());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class CMakeDebugRunner extends DefaultProgramRunner {
         throws ExecutionException {
         Project project = env.getProject();
         ExternalSystemRunConfiguration config = (ExternalSystemRunConfiguration) env.getRunProfile();
-        CMakeBuildInfo buildInfo = CMakeBuildInfo.of(project, config.getSettings().getExternalProjectPath());
+        CMakeBuildInfo buildInfo = CMakeBuildInfo.of(project, config.getSettingsCopy().getExternalProjectPath());
 
         try {
             CMakeFileApi.writeQueryFiles(buildInfo.buildDirectory());

@@ -140,6 +140,8 @@ run.configuration.type.name:
     text: CMake Application
 run.configuration.type.description:
     text: Run or debug an executable target of a CMake project
+run.configuration.fragment.target:
+    text: Target
 run.configuration.target.label:
     text: "Target:"
 run.configuration.target.not.specified:

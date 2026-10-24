@@ -20,27 +20,23 @@ import consulo.cmake.localize.CMakeLocalize;
 import consulo.cmake.module.CMakeTarget;
 import consulo.execution.configuration.CommandLineState;
 import consulo.execution.configuration.ConfigurationFactory;
+import consulo.execution.configuration.LegacyRunConfigurationConverter;
 import consulo.execution.configuration.ModuleBasedConfiguration;
-import consulo.execution.configuration.RunConfiguration;
 import consulo.execution.configuration.RunConfigurationModule;
 import consulo.execution.configuration.RunProfileState;
 import consulo.execution.configuration.RuntimeConfigurationError;
-import consulo.execution.configuration.ui.SettingsEditor;
+import consulo.execution.configuration.fragment.RunConfigurationFragment;
 import consulo.execution.executor.Executor;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.externalSystem.util.ExternalSystemApiUtil;
 import consulo.module.Module;
 import consulo.nativeDev.debugger.driver.NativeDebugTarget;
 import consulo.nativeDev.debugger.run.NativeProgramRunConfiguration;
-import consulo.nativeDev.debugger.run.NativeProgramSettings;
 import consulo.nativeDev.profiler.NativeProfilableRunProfile;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilderFactory;
-import consulo.util.xml.serializer.InvalidDataException;
-import consulo.util.xml.serializer.WriteExternalException;
 import jakarta.annotation.Nullable;
-import org.jdom.Element;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -52,14 +48,34 @@ import java.util.List;
  * @since 2026-10-10
  */
 public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunConfigurationModule> implements NativeProgramRunConfiguration, NativeProfilableRunProfile {
-    private static final String ATTR_TARGET = "target";
-
-    private NativeProgramSettings myProgramSettings = new NativeProgramSettings();
-    @Nullable
-    private String myTargetName;
-
     public CMakeApplicationConfiguration(String name, RunConfigurationModule configurationModule, ConfigurationFactory factory) {
         super(name, configurationModule, factory);
+    }
+
+    @Override
+    protected Class<CMakeApplicationConfigurationOptions> getOptionsClass() {
+        return CMakeApplicationConfigurationOptions.class;
+    }
+
+    @Override
+    public CMakeApplicationConfigurationOptions getOptions() {
+        return (CMakeApplicationConfigurationOptions) super.getOptions();
+    }
+
+    @Override
+    protected void convertLegacyState(LegacyRunConfigurationConverter converter) {
+        super.convertLegacyState(converter);
+
+        CMakeApplicationConfigurationOptions options = new CMakeApplicationConfigurationOptions();
+        options.setTarget(converter.getElement().getAttributeValue("target"));
+        converter.setOptions(options);
+
+        NativeProgramRunConfiguration.convertLegacyProgramState(converter);
+    }
+
+    @Override
+    public List<RunConfigurationFragment<?>> createFragments() {
+        return List.of(new CMakeTargetFragment());
     }
 
     public static List<CMakeTarget> findExecutableTargets(Module module) {
@@ -74,16 +90,11 @@ public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunC
 
     @Nullable
     public String getTargetName() {
-        return myTargetName;
+        return getOptions().getTarget();
     }
 
     public void setTargetName(@Nullable String targetName) {
-        myTargetName = targetName;
-    }
-
-    @Override
-    public NativeProgramSettings getProgramSettings() {
-        return myProgramSettings;
+        getOptions().setTarget(targetName);
     }
 
     @Override
@@ -100,7 +111,7 @@ public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunC
     @Nullable
     public CMakeTarget getTarget() {
         Module module = getConfigurationModule().getModule();
-        String targetName = myTargetName;
+        String targetName = getTargetName();
         if (module == null || targetName == null) {
             return null;
         }
@@ -115,13 +126,8 @@ public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunC
     }
 
     @Override
-    public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        return new CMakeApplicationConfigurationEditor(getProject());
-    }
-
-    @Override
     public void checkConfiguration() throws RuntimeConfigurationError {
-        String targetName = myTargetName;
+        String targetName = getTargetName();
         if (getConfigurationModule().getModule() == null || targetName == null) {
             throw new RuntimeConfigurationError(CMakeLocalize.runConfigurationTargetNotSpecified());
         }
@@ -137,7 +143,7 @@ public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunC
             @Override
             protected ProcessHandler startProcess() throws ExecutionException {
                 return getProject().getApplication().getInstance(ProcessHandlerBuilderFactory.class)
-                    .newBuilder(myProgramSettings.createCommandLine(executable.toString(), executable.getParent()))
+                    .newBuilder(createCommandLine(executable.toString(), executable.getParent()))
                     .killable()
                     .colored()
                     .build();
@@ -148,11 +154,11 @@ public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunC
     @Override
     public NativeDebugTarget createDebugTarget(ExecutionEnvironment environment) throws ExecutionException {
         Path executable = getExecutable();
-        return myProgramSettings.createDebugTarget(executable, executable.getParent());
+        return createDebugTarget(executable, executable.getParent());
     }
 
     private Path getExecutable() throws ExecutionException {
-        String targetName = myTargetName;
+        String targetName = getTargetName();
         if (getConfigurationModule().getModule() == null || targetName == null) {
             throw new ExecutionException(CMakeLocalize.runConfigurationTargetNotSpecified().get());
         }
@@ -165,30 +171,5 @@ public class CMakeApplicationConfiguration extends ModuleBasedConfiguration<RunC
             throw new ExecutionException(CMakeLocalize.runConfigurationArtifactUnknown(target.name()).get());
         }
         return artifact;
-    }
-
-    @Override
-    public ModuleBasedConfiguration clone() {
-        CMakeApplicationConfiguration clone = (CMakeApplicationConfiguration) super.clone();
-        clone.myProgramSettings = myProgramSettings.copy();
-        return clone;
-    }
-
-    @Override
-    public void readExternal(Element element) throws InvalidDataException {
-        super.readExternal(element);
-        readModule(element);
-        myTargetName = element.getAttributeValue(ATTR_TARGET);
-        myProgramSettings.readExternal(element);
-    }
-
-    @Override
-    public void writeExternal(Element element) throws WriteExternalException {
-        super.writeExternal(element);
-        writeModule(element);
-        if (myTargetName != null) {
-            element.setAttribute(ATTR_TARGET, myTargetName);
-        }
-        myProgramSettings.writeExternal(element);
     }
 }
