@@ -23,6 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -79,6 +80,30 @@ public class CMakeToolchainsTest {
 
         assertFalse(toolchains.isMsvc("C"));
         assertTrue(toolchains.isMsvc("CXX"));
+    }
+
+    /**
+     * Boost's reply: the ASM toolchain of a GCC build names the compiler but carries no compiler id.
+     */
+    @Test
+    public void testTargetOfCompilerWithoutId() {
+        CMakeToolchains toolchains = CMakeToolchains.read(new Gson().fromJson("""
+            {
+              "kind": "toolchains",
+              "toolchains": [
+                {
+                  "language": "ASM",
+                  "compiler": {
+                    "path": "/usr/bin/c++",
+                    "implicit": {}
+                  }
+                }
+              ],
+              "version": {"major": 1, "minor": 1}
+            }
+            """, JsonObject.class));
+
+        assertNull(toolchains.getTarget("ASM"));
     }
 
     @Test

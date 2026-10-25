@@ -116,7 +116,9 @@ final class CMakeToolchains {
             return toolchain.compilerTarget();
         }
         String path = toolchain.compilerPath();
-        if (path == null || !DUMP_MACHINE_COMPILERS.contains(toolchain.compilerId())) {
+        // CMake identifies no compiler for some languages - ASM of a GCC build has none
+        String compilerId = toolchain.compilerId();
+        if (path == null || compilerId == null || !DUMP_MACHINE_COMPILERS.contains(compilerId)) {
             return null;
         }
         return myAskedTargets.computeIfAbsent(path, CMakeToolchains::dumpMachine).orElse(null);

@@ -51,7 +51,8 @@ import java.util.regex.Pattern;
  * @author VISTALL
  */
 public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMakeExecutionSettings> {
-    private static final Pattern PROJECT_NAME_PATTERN = Pattern.compile("project\\s*\\(\\s*(\\S+)", Pattern.CASE_INSENSITIVE);
+    // a call at the start of a line, so a "project()" in a comment is not taken for one
+    private static final Pattern PROJECT_NAME_PATTERN = Pattern.compile("^\\s*project\\s*\\(\\s*([\\w.+-]+)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     private static final Set<String> SKIP_TARGET_TYPES = Set.of("UTILITY", "INTERFACE_LIBRARY");
 
     private final CMakeProcessRunner myRunner = new CMakeProcessRunner();
@@ -373,7 +374,7 @@ public class CMakeProjectResolver implements ExternalSystemProjectResolver<CMake
     // -------------------------------------------------------------------------
 
     @Nullable
-    private static String extractProjectName(File cmakeListsFile) {
+    static String extractProjectName(File cmakeListsFile) {
         try {
             String content = Files.readString(cmakeListsFile.toPath());
             Matcher matcher = PROJECT_NAME_PATTERN.matcher(content);
