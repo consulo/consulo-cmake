@@ -15,6 +15,8 @@ import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author VISTALL
@@ -33,11 +35,11 @@ public class CMakeModuleImportProvider extends AbstractExternalModuleImportProvi
     }
 
     @Override
-    public boolean canImport(@Nonnull File fileOrDirectory) {
-        if (fileOrDirectory.isDirectory()) {
-            return new File(fileOrDirectory, CMakeConstants.CMAKE_LISTS_TXT).exists();
+    public boolean canImport(@Nonnull Path fileOrDirectory) {
+        if (Files.isDirectory(fileOrDirectory)) {
+            return Files.exists(fileOrDirectory.resolve(CMakeConstants.CMAKE_LISTS_TXT));
         }
-        return CMakeConstants.CMAKE_LISTS_TXT.equals(fileOrDirectory.getName());
+        return CMakeConstants.CMAKE_LISTS_TXT.equals(fileOrDirectory.getFileName().toString()) && Files.exists(fileOrDirectory);
     }
 
     @Override
