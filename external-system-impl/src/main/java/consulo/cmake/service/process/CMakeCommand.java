@@ -15,6 +15,7 @@
  */
 package consulo.cmake.service.process;
 
+import consulo.cmake.configure.CMakeConfigureContributor;
 import consulo.cmake.externalSystem.impl.CMakeConstants;
 import consulo.process.cmd.GeneralCommandLine;
 import jakarta.annotation.Nullable;
@@ -32,11 +33,15 @@ public final class CMakeCommand {
     }
 
     public static GeneralCommandLine configure(File sourceDirectory, File buildDirectory, String buildType) {
-        return new GeneralCommandLine(CMakeConstants.CMAKE_EXECUTABLE)
+        GeneralCommandLine commandLine = new GeneralCommandLine(CMakeConstants.CMAKE_EXECUTABLE)
             .withParameters("-S", sourceDirectory.getAbsolutePath(),
                 "-B", buildDirectory.getAbsolutePath(),
                 "-DCMAKE_BUILD_TYPE=" + buildType)
             .withWorkDirectory(sourceDirectory.getAbsolutePath());
+        for (CMakeConfigureContributor contributor : CMakeConfigureContributor.EP_NAME.getExtensionList()) {
+            contributor.contribute(commandLine);
+        }
+        return commandLine;
     }
 
     public static GeneralCommandLine build(File buildDirectory, String buildType, @Nullable String target, boolean cleanFirst) {

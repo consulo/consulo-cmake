@@ -13,6 +13,7 @@ module consulo.cmake.external.system.impl {
     requires com.google.gson;
     requires org.slf4j;
 
+    exports consulo.cmake.configure;
     exports consulo.cmake.externalSystem.impl;
     exports consulo.cmake.externalSystem.model;
     exports consulo.cmake.setting;

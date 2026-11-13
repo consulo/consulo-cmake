@@ -32,8 +32,11 @@ import java.util.regex.Pattern;
  */
 final class CMakeBuildDiagnosticParser {
     private static final Pattern GCC = Pattern.compile("^(.+?):(\\d+):(?:(\\d+):)? (fatal error|error|warning|note): (.*)$");
+    /**
+     * {@code file(line[,column]): error C2065: ...} of MSVC, and {@code file(line): warning #177-D: ...} of nvcc.
+     */
     private static final Pattern MSVC =
-        Pattern.compile("^\\s*(.+?)\\((\\d+)(?:,(\\d+))?\\)\\s*:\\s*(fatal error|error|warning)\\s*[A-Za-z]*\\d*\\s*:\\s*(.*?)(?:\\s+\\[[^\\]]+\\])?$");
+        Pattern.compile("^\\s*(.+?)\\((\\d+)(?:,(\\d+))?\\)\\s*:\\s*(fatal error|error|warning)\\s*(?:[A-Za-z]*\\d*|#\\d+(?:-[A-Z])?)\\s*:\\s*(.*?)(?:\\s+\\[[^\\]]+\\])?$");
 
     private final CompileContext myContext;
     private final File myBaseDirectory;
